@@ -53,7 +53,7 @@ const achievements = [
   "Top 1% in Maharashtra State Board – Ranked among the top 1 percentile of 12th Grade students in Maharashtra.",
   "Pariksha Pe Charcha (2020) – Selected among 1,050 students from 2,60,000 applicants nationwide; interacted with Hon. Prime Minister Shri Narendra Modi at Talkatora Stadium, New Delhi.",
   "Solved 400+ Data Structures & Algorithms problems across platforms including LeetCode, GeeksforGeeks, Codeforces, CodeChef.",
-  "Peak Rating of 1762 rated on LeetCode (top 9.47 percent)",
+  "Peak Rating of 1786 rated on LeetCode (top 8.25 percent)",
 ];
 
 const skills = {
