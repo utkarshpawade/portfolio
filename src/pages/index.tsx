@@ -109,6 +109,29 @@ const projects = [
     ],
   },
   {
+    title: "BrightSync - Cross-Display Brightness Synchronizer",
+    description: "A Windows desktop application that synchronizes brightness across laptop internal displays and external monitors using native Windows APIs.",
+    image: "/assets/brightysync.png", // TODO: Add project image here
+    href: "https://youtu.be/HicQ2pJHZJE", // TODO: Add GitHub link
+    deployUrl: "#", // TODO: Add deployment URL
+    technologies: [
+  "Electron",
+  "TypeScript",
+  "React",
+  "Node.js",
+  "C++",
+  "N-API",
+  "Windows WMI",
+  "DDC/CI"
+],
+
+points: [
+  "Built a Windows desktop app to synchronize brightness across internal and external monitors using native Windows APIs.",
+  "Developed a C++ native addon (N-API) integrating WMI and DDC/CI for direct hardware-level brightness control.",
+  "Architected a layered Electron system with secure IPC, global hotkeys, system tray support, and smooth animated brightness transitions."
+],
+  },
+  {
     title: "Scalable Ticket Booking",
     description: "Full-stack MERN Movie Ticket Booking Platform with seat selection, real-time availability, and admin dashboard.",
     image: "/assets/ticket-booking.png", // TODO: Add project image here
@@ -127,8 +150,8 @@ export default function Home() {
   const refScrollContainer = useRef(null);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
-  // const [current, setCurrent] = useState<number>(0);
-  // const [count, setCount] = useState<number>(0);
+  const [current, setCurrent] = useState<number>(0);
+  const [count, setCount] = useState<number>(0);
 
   // handle scroll
   useEffect(() => {
@@ -175,11 +198,11 @@ export default function Home() {
   useEffect(() => {
     if (!carouselApi) return;
 
-    // setCount(carouselApi.scrollSnapList().length);
-    // setCurrent(carouselApi.selectedScrollSnap() + 1);
+    setCount(carouselApi.scrollSnapList().length);
+    setCurrent(carouselApi.selectedScrollSnap() + 1);
 
     carouselApi.on("select", () => {
-      // setCurrent(carouselApi.selectedScrollSnap() + 1);
+      setCurrent(carouselApi.selectedScrollSnap() + 1);
     });
   }, [carouselApi]);
 
@@ -303,50 +326,80 @@ export default function Home() {
 
             {/* Carousel */}
             <div className="mt-14">
-              <Carousel setApi={setCarouselApi} className="w-full">
-                <CarouselContent>
-                  {projects.map((project) => (
-                    <CarouselItem key={project.title} className="md:basis-1/2">
-                      <Card id="tilt">
-                        <CardHeader className="p-0">
-                          <Link href={project.href} target="_blank" passHref>
-                            {project.image.endsWith(".webm") ? (
-                              <video
-                                src={project.image}
-                                autoPlay
-                                loop
-                                muted
-                                className="aspect-video h-full w-full rounded-t-md bg-primary object-cover"
-                              />
-                            ) : (
-                              <Image
-                                src={project.image}
-                                alt={project.title}
-                                width={600}
-                                height={300}
-                                quality={100}
-                                className="aspect-video h-full w-full rounded-t-md bg-primary object-cover"
-                              />
-                            )}
-                          </Link>
-                        </CardHeader>
-                        <CardContent className="absolute bottom-0 w-full bg-background/50 backdrop-blur">
-                          <CardTitle className="border-t border-white/5 p-4 text-base font-normal tracking-tighter">
-                            {project.description}
-                          </CardTitle>
-                        </CardContent>
-                      </Card>
+              <Carousel 
+                setApi={setCarouselApi} 
+                className="w-full"
+                opts={{
+                  loop: true,
+                  align: "center",
+                }}
+              >
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {projects.map((project, index) => (
+                    <CarouselItem 
+                      key={project.title} 
+                      className="pl-2 md:pl-4 md:basis-[85%] lg:basis-[70%] xl:basis-[60%] transition-all duration-300"
+                    >
+                      <div className="p-1 space-y-4">
+                        <Card id="tilt" className="transition-all duration-300 hover:scale-[1.02]">
+                          <CardHeader className="p-0">
+                            <Link href={project.href} target="_blank" passHref>
+                              {project.image.endsWith(".webm") ? (
+                                <video
+                                  src={project.image}
+                                  autoPlay
+                                  loop
+                                  muted
+                                  className="aspect-video h-full w-full rounded-t-md bg-primary object-cover"
+                                />
+                              ) : (
+                                <Image
+                                  src={project.image}
+                                  alt={project.title}
+                                  width={600}
+                                  height={300}
+                                  quality={100}
+                                  className="aspect-video h-full w-full rounded-t-md bg-primary object-cover"
+                                />
+                              )}
+                            </Link>
+                          </CardHeader>
+                          <CardContent className="p-4">
+                            <CardTitle className="text-lg font-semibold tracking-tight">
+                              {project.title}
+                            </CardTitle>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                              {project.description}
+                            </p>
+                          </CardContent>
+                        </Card>
+                        
+                        {/* Project Points - Only show for current slide */}
+                        {index + 1 === current && (
+                          <div className="rounded-lg bg-white/5 p-4 backdrop-blur">
+                            <h4 className="mb-3 text-sm font-semibold text-foreground">Key Features:</h4>
+                            <ul className="space-y-2">
+                              {project.points.map((point, i) => (
+                                <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                                  <span>{point}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
+                <CarouselPrevious className="-left-12 md:-left-16" />
+                <CarouselNext className="-right-12 md:-right-16" />
               </Carousel>
               <div className="py-2 text-center text-sm text-muted-foreground">
-                {/* <span className="font-semibold">
-                  {current+1} / {count+1}
+                <span className="font-semibold">
+                  {current} / {count}
                 </span>{" "}
-                projects */}
+                projects
               </div>
             </div>
           </div>
