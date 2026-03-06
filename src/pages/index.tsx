@@ -112,8 +112,8 @@ const projects = [
     title: "BrightSync - Cross-Display Brightness Synchronizer",
     description: "A Windows desktop application that synchronizes brightness across laptop internal displays and external monitors using native Windows APIs.",
     image: "/assets/brightysync.png", // TODO: Add project image here
-    href: "https://youtu.be/HicQ2pJHZJE", // TODO: Add GitHub link
-    deployUrl: "#", // TODO: Add deployment URL
+    href: "https://youtu.be/4yxZ5b1Is8E", // TODO: Add GitHub link
+    deployUrl: "https://github.com/utkarshpawade/BrightSync", // TODO: Add deployment URL
     technologies: [
   "Electron",
   "TypeScript",
