@@ -66,9 +66,10 @@ const achievements = [
 ];
 
 const skills = {
-  languages: [
+  languages: [ 
     { name: "Java", icon: "/skills/icons8-java.svg" },
     { name: "Python", icon: "/skills/icons8-python.svg" },
+    { name: "R", icon: "/skills/icons8-r-project.svg" },
     { name: "TypeScript", icon: "/skills/icons8-typescript.svg" },
     { name: "JavaScript", icon: "/skills/icons8-javascript.svg" },
     { name: "SQL", icon: "/skills/icons8-sql.svg" },
@@ -271,8 +272,8 @@ export default function Home() {
                 </Link>{" "}
                 with expertise in{" "}
                 <span className="text-gradient">TypeScript, React, Next.js, and the MERN stack</span>.
-                I&apos;m passionate about building scalable full-stack applications
-                and have strong problem-solving skills with 400+ DSA problems solved.
+                I&apos;m passionate about building scalable full-stack applications and a keen interest in research with
+                 strong problem-solving skills.
               </p>
             </div>
 
