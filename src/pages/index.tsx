@@ -46,6 +46,15 @@ const experience = [
       "Recreated and experimented with a state-of-the-art 3D vision research model, analyzing architectural choices, optimization strategies, and limitations for potential real-world deployment.",
     ],
   },
+  {
+    title: "Open Source Contributor",
+    company: "GirlScript Summer of Code",
+    period: "July 2025 – Sep 2025",
+    points: [
+      "Contributed to open-source projects by fixing issues, improving documentation, and submitting pull requests in a collaborative Git-based workflow.",
+  "Worked with maintainers and contributors through code reviews and discussions, gaining experience in large-scale codebases and open-source development practices."
+    ],
+  },
 ];
 
 const achievements = [
@@ -468,7 +477,7 @@ export default function Home() {
                 >
                   <h3 className="text-xl font-semibold text-foreground">{exp.title}</h3>
                   <p className="mt-1 text-lg text-primary">{exp.company}</p>
-                  <p className="text-sm text-muted-foreground">{exp.location} | {exp.period}</p>
+                  <p className="text-sm text-muted-foreground">{exp.location}  {exp.period}</p>
                   <ul className="mt-4 list-disc space-y-2 pl-5">
                     {exp.points.map((point, i) => (
                       <li key={i} className="text-sm text-muted-foreground">{point}</li>
