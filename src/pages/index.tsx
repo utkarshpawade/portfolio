@@ -242,40 +242,43 @@ export default function Home() {
         >
           <div className={styles.intro}>
             <div>
-              <h1
-                data-scroll
-                data-scroll-enable-touch-speed
-                data-scroll-speed=".06"
-                data-scroll-direction="horizontal"
-              >
-                <span className="text-6xl tracking-tighter text-foreground 2xl:text-8xl">
-                  Hello, I&apos;m
-                  <br />
-                </span>
-                <span className="clash-grotesk text-gradient text-6xl 2xl:text-8xl">
-                  Utkarsh.
-                </span>
-              </h1>
-              <p
-                data-scroll
-                data-scroll-enable-touch-speed
-                data-scroll-speed=".06"
-                className="mt-4 max-w-3xl text-xl font-light leading-normal tracking-tight text-muted-foreground xl:text-2xl"
-              >
-                I&apos;m a Pre-Final Year CSE student at{" "}
-                <Link
-                  href="https://iiitsonepat.ac.in/"
-                  target="_blank"
-                  className="underline"
-                >
-                  IIIT Sonepat
-                </Link>{" "}
-                with expertise in{" "}
-                <span className="text-gradient">TypeScript, React, Next.js, and the MERN stack</span>.
-                I&apos;m passionate about building scalable full-stack applications and a keen interest in research with
-                 strong problem-solving skills.
-              </p>
-            </div>
+  <h1
+    data-scroll
+    data-scroll-enable-touch-speed
+    data-scroll-speed=".06"
+    data-scroll-direction="horizontal"
+  >
+    <span className="text-6xl tracking-tighter text-foreground 2xl:text-8xl">
+      Hello, I&apos;m
+      <br />
+    </span>
+    <span className="clash-grotesk text-gradient text-6xl 2xl:text-8xl">
+      Utkarsh.
+    </span>
+  </h1>
+
+  <p
+    data-scroll
+    data-scroll-enable-touch-speed
+    data-scroll-speed=".06"
+    className="mt-4 max-w-3xl text-xl font-light leading-normal tracking-tight text-muted-foreground xl:text-2xl"
+  >
+    I&apos;m a pre-final year CSE student at{" "}
+    <Link
+      href="https://iiitsonepat.ac.in/"
+      target="_blank"
+      className="underline"
+    >
+      IIIT Sonepat
+    </Link>{" "}
+    with experience in{" "}
+    <span className="text-gradient">
+      TypeScript, React, Next.js, and the MERN stack
+    </span>.
+    I enjoy building scalable full-stack applications and have a strong interest
+    in research, backed by solid problem-solving skills.
+  </p>
+</div>
 
             <div className="mt-12 grid grid-cols-2 gap-8 xl:grid-cols-3">
               {aboutStats.map((stat) => (
