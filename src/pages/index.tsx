@@ -48,11 +48,12 @@ const experience = [
   },
   {
     title: "Open Source Contributor",
-    company: "GirlScript Summer of Code",
-    period: "July 2025 – Sep 2025",
+    company: "Stan",
+    period: "Feb 2026 – May 2026",
     points: [
-      "Contributed to open-source projects by fixing issues, improving documentation, and submitting pull requests in a collaborative Git-based workflow.",
-  "Worked with maintainers and contributors through code reviews and discussions, gaining experience in large-scale codebases and open-source development practices."
+      "Stan-dev/bayesplot on the R package for Bayesian MCMC visualization with 112K+ monthly CRAN downloads; merged 29 PRs across 72 commits and 4,070+ lines of code.",
+  "Modernized the codebase by replacing deprecated dplyr, tidyselect, and reshape2 APIs and migrated error handling across PPC/MCMC modules from stop()/stopifnot() to rlang::abort() with descriptive diagnostics.",
+      "Fixed silent-failure bugs in core MCMC data pipelines (unequal chain-length recycling, NA propagation, colname validation) and expanded unit-test coverage for data() helpers and tidy parameter selection"
     ],
   },
 ];
@@ -122,8 +123,8 @@ const projects = [
     title: "BrightSync - Cross-Display Brightness Synchronizer",
     description: "A Windows desktop application that synchronizes brightness across laptop internal displays and external monitors using native Windows APIs.",
     image: "/assets/brightysync.png", // TODO: Add project image here
-    href: "https://youtu.be/4yxZ5b1Is8E", // TODO: Add GitHub link
-    deployUrl: "https://github.com/utkarshpawade/BrightSync", // TODO: Add deployment URL
+    href: "https://github.com/utkarshpawade/BrightSync", // TODO: Add GitHub link
+    deployUrl: "https://youtu.be/4yxZ5b1Is8E", // TODO: Add deployment URL
     technologies: [
   "Electron",
   "TypeScript",
@@ -146,7 +147,7 @@ points: [
     description: "Full-stack MERN Movie Ticket Booking Platform with seat selection, real-time availability, and admin dashboard.",
     image: "/assets/ticket-booking.png", // TODO: Add project image here
     href: "https://github.com/utkarshpawade/Scalable-Ticket-Booking-System", // TODO: Add GitHub link
-    deployUrl: "#", // TODO: Add deployment URL
+    deployUrl: "https://scalable-ticket-booking-system.vercel.app/", // TODO: Add deployment URL
     technologies: ["MERN Stack", "REST APIs", "Clerk Auth", "Inngest"],
     points: [
       "Built and deployed a full-stack MERN Movie Ticket Booking Platform with seat selection, real-time availability, and an admin dashboard for managing movies and bookings.",
