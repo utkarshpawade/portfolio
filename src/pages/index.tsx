@@ -145,7 +145,7 @@ points: [
   {
     title: "Scalable Ticket Booking",
     description: "Full-stack MERN Movie Ticket Booking Platform with seat selection, real-time availability, and admin dashboard.",
-    image: "/assets/ticket-booking.png", // TODO: Add project image here
+    image: "/assets/Screenshot 2026-05-05 155113.png", // TODO: Add project image here
     href: "https://github.com/utkarshpawade/Scalable-Ticket-Booking-System", // TODO: Add GitHub link
     deployUrl: "https://scalable-ticket-booking-system.vercel.app/", // TODO: Add deployment URL
     technologies: ["MERN Stack", "REST APIs", "Clerk Auth", "Inngest"],
