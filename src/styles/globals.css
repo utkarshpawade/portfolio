@@ -55,12 +55,7 @@
     @apply antialiased;
   }
   body {
-    @apply bg-background text-foreground cursor-wait;
-    background-image: url('');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    @apply cursor-wait bg-background text-foreground;
   }
   section {
     scroll-margin-top: 60px;

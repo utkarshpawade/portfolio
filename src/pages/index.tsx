@@ -1,9 +1,9 @@
 import Container from "@/components/Container";
-import { useEffect, useRef, Suspense, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "@/styles/Home.module.css";
 import { Button } from "@/components/ui/button";
 import { TriangleDownIcon } from "@radix-ui/react-icons";
-import Spline from "@splinetool/react-spline";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -20,8 +20,15 @@ import VanillaTilt from "vanilla-tilt";
 import { motion } from "framer-motion";
 import LeetCodeStats from "@/components/LeetCodeStats";
 
+const Spline = dynamic(() => import("@splinetool/react-spline"), {
+  ssr: false,
+  loading: () => (
+    <span className="text-sm text-muted-foreground">Loading 3D scene…</span>
+  ),
+});
+
 const aboutStats = [
-  { label: "DSA Problems Solved", value: "400+" },
+  { label: "DSA Problems Solved", value: "700+" },
   { label: "Projects", value: "5+" },
   { label: "Internships", value: "2" },
 ];
@@ -35,6 +42,17 @@ const education = [
 ];
 
 const experience = [
+  {
+    title: "Full Stack Developer Intern",
+    company: "Marvedge",
+    location: "Remote",
+    period: "June 2026 – Present",
+    points: [
+      "Developed AI-powered demo generation workflows that transformed 500+ product URLs, recordings, and web pages into interactive product demos, reducing manual demo creation effort by 85%.",
+      "Built and optimized web scraping, content extraction, and LLM-based product understanding pipelines that processed 10,000+ pages of product content, improving automated feature discovery and demo generation accuracy.",
+      "Engineered AI-driven demo generation features including automated script creation, voiceovers, subtitles, and personalization, enabling the production of 1,000+ interactive demos while reducing turnaround time from hours to under 2 minutes.",
+    ],
+  },
   {
     title: "Machine Learning Research Intern",
     company: "National Institute of Technology, Calicut",
@@ -52,8 +70,8 @@ const experience = [
     period: "Feb 2026 – May 2026",
     points: [
       "Stan-dev/bayesplot on the R package for Bayesian MCMC visualization with 112K+ monthly CRAN downloads; merged 29 PRs across 72 commits and 4,070+ lines of code.",
-  "Modernized the codebase by replacing deprecated dplyr, tidyselect, and reshape2 APIs and migrated error handling across PPC/MCMC modules from stop()/stopifnot() to rlang::abort() with descriptive diagnostics.",
-      "Fixed silent-failure bugs in core MCMC data pipelines (unequal chain-length recycling, NA propagation, colname validation) and expanded unit-test coverage for data() helpers and tidy parameter selection"
+      "Modernized the codebase by replacing deprecated dplyr, tidyselect, and reshape2 APIs and migrated error handling across PPC/MCMC modules from stop()/stopifnot() to rlang::abort() with descriptive diagnostics.",
+      "Fixed silent-failure bugs in core MCMC data pipelines (unequal chain-length recycling, NA propagation, colname validation) and expanded unit-test coverage for data() helpers and tidy parameter selection",
     ],
   },
 ];
@@ -62,12 +80,30 @@ const achievements = [
   "Reliance Foundation Scholarship (2024) – Awarded the Reliance Foundation Scholarship after clearing a highly competitive national-level entrance exam with a low acceptance rate, recognized for academic excellence.",
   "Top 1% in Maharashtra State Board – Ranked among the top 1 percentile of 12th Grade students in Maharashtra.",
   "Pariksha Pe Charcha (2020) – Selected among 1,050 students from 2,60,000 applicants nationwide; interacted with Hon. Prime Minister Shri Narendra Modi at Talkatora Stadium, New Delhi.",
-  "Solved 400+ Data Structures & Algorithms problems across platforms including LeetCode, GeeksforGeeks, Codeforces, CodeChef.",
-  "Peak Rating of 1831 rated on LeetCode (top 6.55 percent)",
+  "Solved 700+ Data Structures & Algorithms problems across platforms including LeetCode, GeeksforGeeks, Codeforces, CodeChef.",
+  "Peak Rating of 1868 on LeetCode (top 5.51 percent)",
+];
+
+const certifications = [
+  {
+    title: "Complete Data Science, Machine Learning, DL, NLP Bootcamp",
+    provider: "Udemy",
+    skills: [
+      "Machine Learning",
+      "Deep Learning",
+      "Data Science",
+      "Data Analysis",
+    ],
+  },
+  {
+    title: "Complete Full-Stack Web Development Bootcamp",
+    provider: "Udemy",
+    skills: ["ReactJS", "Express.js", "NodeJS", "MongoDB"],
+  },
 ];
 
 const skills = {
-  languages: [ 
+  languages: [
     { name: "Java", icon: "/skills/icons8-java.svg" },
     { name: "Python", icon: "/skills/icons8-python.svg" },
     { name: "R", icon: "/skills/icons8-r-project.svg" },
@@ -105,13 +141,40 @@ const skills = {
 };
 
 const projects = [
-  
+  {
+    title: "AI-Powered Cloud IDE",
+    description:
+      "Browser-based AI coding platform where an autonomous agent scaffolds, edits, and runs full projects from plain-English prompts — inspired by Cursor, Bolt, and Lovable.",
+    image: "/assets/ide.webp",
+    href: "https://github.com/utkarshpawade/IDEce",
+    deployUrl: "#",
+    technologies: [
+      "Next.js 16",
+      "React 19",
+      "TypeScript",
+      "Tailwind CSS 4",
+      "Convex",
+      "Inngest AgentKit",
+      "Claude Sonnet 4 / Gemini",
+      "WebContainers",
+      "CodeMirror 6",
+      "Clerk",
+      "Sentry",
+      "shadcn/ui",
+    ],
+    points: [
+      "Built an agentic AI builder that turns natural-language prompts into entire projects via tool-using AI (file create/read/update/delete/rename, folder management, live doc scraping), plus inline ghost-text suggestions and a Cmd+K quick-edit flow on selected code.",
+      "Delivered a real in-browser IDE with a CodeMirror 6 editor (syntax highlighting, multi-cursor, minimap, code folding), file tree, and tabs, executing generated apps via WebContainers with an integrated xterm.js terminal and live preview.",
+      "Engineered a real-time, event-driven architecture with one-click GitHub import/export, reliable long-running AI jobs through background orchestration, and production-grade authentication, billing, and error/LLM monitoring.",
+    ],
+  },
   {
     title: "Nextable - Agentic App Generator",
-    description: "AI-powered Next.js 15 application generator with multi-model LLM support using Inngest Agent Kit.",
-    image: "/assets/nextable.png", // TODO: Add project image here
-    href: "https://github.com/utkarshpawade/Nextable", // TODO: Add GitHub link
-    deployUrl: "#", // TODO: Add deployment URL
+    description:
+      "AI-powered Next.js 15 application generator with multi-model LLM support using Inngest Agent Kit.",
+    image: "/assets/nextable.webp",
+    href: "https://github.com/utkarshpawade/Nextable",
+    deployUrl: "#",
     technologies: ["Next.js", "tRPC", "Prisma", "Inngest Agent Kit", "E2B"],
     points: [
       "Built an AI-powered Next.js 15 application generator with multi-model LLM support (GPT, Grok, Gemini) using Inngest Agent Kit for autonomous code generation.",
@@ -121,40 +184,42 @@ const projects = [
   },
   {
     title: "BrightSync - Cross-Display Brightness Synchronizer",
-    description: "A Windows desktop application that synchronizes brightness across laptop internal displays and external monitors using native Windows APIs.",
-    image: "/assets/brightysync.png", // TODO: Add project image here
-    href: "https://github.com/utkarshpawade/BrightSync", // TODO: Add GitHub link
-    deployUrl: "https://youtu.be/4yxZ5b1Is8E", // TODO: Add deployment URL
+    description:
+      "A Windows desktop application that synchronizes brightness across laptop internal displays and external monitors using native Windows APIs.",
+    image: "/assets/brightysync.webp",
+    href: "https://github.com/utkarshpawade/BrightSync",
+    deployUrl: "https://youtu.be/4yxZ5b1Is8E",
     technologies: [
-  "Electron",
-  "TypeScript",
-  "React",
-  "Node.js",
-  "C++",
-  "N-API",
-  "Windows WMI",
-  "DDC/CI"
-],
+      "Electron",
+      "TypeScript",
+      "React",
+      "Node.js",
+      "C++",
+      "N-API",
+      "Windows WMI",
+      "DDC/CI",
+    ],
 
-points: [
-  "Built a Windows desktop app to synchronize brightness across internal and external monitors using native Windows APIs.",
-  "Developed a C++ native addon (N-API) integrating WMI and DDC/CI for direct hardware-level brightness control.",
-  "Architected a layered Electron system with secure IPC, global hotkeys, system tray support, and smooth animated brightness transitions."
-],
+    points: [
+      "Built a Windows desktop app to synchronize brightness across internal and external monitors using native Windows APIs.",
+      "Developed a C++ native addon (N-API) integrating WMI and DDC/CI for direct hardware-level brightness control.",
+      "Architected a layered Electron system with secure IPC, global hotkeys, system tray support, and smooth animated brightness transitions.",
+    ],
   },
   {
     title: "Scalable Ticket Booking",
-    description: "Full-stack MERN Movie Ticket Booking Platform with seat selection, real-time availability, and admin dashboard.",
-    image: "/assets/Screenshot 2026-05-05 155113.png", // TODO: Add project image here
-    href: "https://github.com/utkarshpawade/Scalable-Ticket-Booking-System", // TODO: Add GitHub link
-    deployUrl: "https://scalable-ticket-booking-system.vercel.app/", // TODO: Add deployment URL
+    description:
+      "Full-stack MERN Movie Ticket Booking Platform with seat selection, real-time availability, and admin dashboard.",
+    image: "/assets/Screenshot 2026-05-05 155113.png",
+    href: "https://github.com/utkarshpawade/Scalable-Ticket-Booking-System",
+    deployUrl: "https://scalable-ticket-booking-system.vercel.app/",
     technologies: ["MERN Stack", "REST APIs", "Clerk Auth", "Inngest"],
     points: [
       "Built and deployed a full-stack MERN Movie Ticket Booking Platform with seat selection, real-time availability, and an admin dashboard for managing movies and bookings.",
       "Implemented Clerk authentication with email, social, and phone sign-in, supporting multi-profile sessions and seamless account switching.",
       "Integrated Inngest for background jobs and scheduling, enabling automated email notifications and temporary seat locking with timeout logic.",
     ],
-  }
+  },
 ];
 
 export default function Home() {
@@ -169,10 +234,12 @@ export default function Home() {
     const sections = document.querySelectorAll("section");
     const navLinks = document.querySelectorAll(".nav-link");
 
+    let locomotive: { destroy: () => void } | null = null;
     async function getLocomotive() {
+      if (!refScrollContainer.current) return;
       const Locomotive = (await import("locomotive-scroll")).default;
-      new Locomotive({
-        el: refScrollContainer.current ?? new HTMLElement(),
+      locomotive = new Locomotive({
+        el: refScrollContainer.current,
         smooth: true,
       });
     }
@@ -190,10 +257,8 @@ export default function Home() {
 
       navLinks.forEach((li) => {
         li.classList.remove("nav-active");
-
         if (li.getAttribute("href") === `#${current}`) {
           li.classList.add("nav-active");
-          console.log(li.getAttribute("href"));
         }
       });
     }
@@ -203,6 +268,7 @@ export default function Home() {
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      locomotive?.destroy();
     };
   }, []);
 
@@ -219,7 +285,9 @@ export default function Home() {
 
   // card hover effect
   useEffect(() => {
-    const tilt: HTMLElement[] = Array.from(document.querySelectorAll("#tilt"));
+    const tilt = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-tilt-card]"),
+    );
     VanillaTilt.init(tilt, {
       speed: 300,
       glare: true,
@@ -228,6 +296,13 @@ export default function Home() {
       perspective: 900,
       scale: 0.9,
     });
+    return () => {
+      tilt.forEach((el) =>
+        (
+          el as unknown as { vanillaTilt?: { destroy: () => void } }
+        ).vanillaTilt?.destroy(),
+      );
+    };
   }, []);
 
   return (
@@ -243,43 +318,44 @@ export default function Home() {
         >
           <div className={styles.intro}>
             <div>
-  <h1
-    data-scroll
-    data-scroll-enable-touch-speed
-    data-scroll-speed=".06"
-    data-scroll-direction="horizontal"
-  >
-    <span className="text-6xl tracking-tighter text-foreground 2xl:text-8xl">
-      Hello, I&apos;m
-      <br />
-    </span>
-    <span className="clash-grotesk text-gradient text-6xl 2xl:text-8xl">
-      Utkarsh.
-    </span>
-  </h1>
+              <h1
+                data-scroll
+                data-scroll-enable-touch-speed
+                data-scroll-speed=".06"
+                data-scroll-direction="horizontal"
+              >
+                <span className="text-6xl tracking-tighter text-foreground 2xl:text-8xl">
+                  Hello, I&apos;m
+                  <br />
+                </span>
+                <span className="clash-grotesk text-gradient text-6xl 2xl:text-8xl">
+                  Utkarsh.
+                </span>
+              </h1>
 
-  <p
-    data-scroll
-    data-scroll-enable-touch-speed
-    data-scroll-speed=".06"
-    className="mt-4 max-w-3xl text-xl font-light leading-normal tracking-tight text-muted-foreground xl:text-2xl"
-  >
-    I&apos;m a pre-final year CSE student at{" "}
-    <Link
-      href="https://iiitsonepat.ac.in/"
-      target="_blank"
-      className="underline"
-    >
-      IIIT Sonepat
-    </Link>{" "}
-    with experience in{" "}
-    <span className="text-gradient">
-      TypeScript, React, Next.js, and the MERN stack
-    </span>.
-    I enjoy building scalable full-stack applications and have a strong interest
-    in research, backed by solid problem-solving skills.
-  </p>
-</div>
+              <p
+                data-scroll
+                data-scroll-enable-touch-speed
+                data-scroll-speed=".06"
+                className="mt-4 max-w-3xl text-xl font-light leading-normal tracking-tight text-muted-foreground xl:text-2xl"
+              >
+                I&apos;m a pre-final year CSE student at{" "}
+                <Link
+                  href="https://iiitsonepat.ac.in/"
+                  target="_blank"
+                  className="underline"
+                >
+                  IIIT Sonepat
+                </Link>{" "}
+                with experience in{" "}
+                <span className="text-gradient">
+                  TypeScript, React, Next.js, and the MERN stack
+                </span>
+                . I enjoy building scalable full-stack applications and have a
+                strong interest in research, backed by solid problem-solving
+                skills.
+              </p>
+            </div>
 
             <div className="mt-12 grid grid-cols-2 gap-8 xl:grid-cols-3">
               {aboutStats.map((stat) => (
@@ -340,8 +416,8 @@ export default function Home() {
 
             {/* Carousel */}
             <div className="mt-14">
-              <Carousel 
-                setApi={setCarouselApi} 
+              <Carousel
+                setApi={setCarouselApi}
                 className="w-full"
                 opts={{
                   loop: true,
@@ -349,13 +425,16 @@ export default function Home() {
                 }}
               >
                 <CarouselContent className="-ml-2 md:-ml-4">
-                  {projects.map((project, index) => (
-                    <CarouselItem 
-                      key={project.title} 
-                      className="pl-2 md:pl-4 md:basis-[85%] lg:basis-[70%] xl:basis-[60%] transition-all duration-300"
+                  {projects.map((project) => (
+                    <CarouselItem
+                      key={project.title}
+                      className="pl-2 transition-all duration-300 md:basis-[85%] md:pl-4 lg:basis-[70%] xl:basis-[60%]"
                     >
-                      <div className="p-1 space-y-4">
-                        <Card id="tilt" className="transition-all duration-300 hover:scale-[1.02]">
+                      <div className="space-y-4 p-1">
+                        <Card
+                          data-tilt-card
+                          className="transition-all duration-300 hover:scale-[1.02]"
+                        >
                           <CardHeader className="p-0">
                             <Link href={project.href} target="_blank" passHref>
                               {project.image.endsWith(".webm") ? (
@@ -372,7 +451,8 @@ export default function Home() {
                                   alt={project.title}
                                   width={600}
                                   height={300}
-                                  quality={100}
+                                  quality={85}
+                                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 70vw, 60vw"
                                   className="aspect-video h-full w-full rounded-t-md bg-primary object-cover"
                                 />
                               )}
@@ -385,23 +465,55 @@ export default function Home() {
                             <p className="mt-2 text-sm text-muted-foreground">
                               {project.description}
                             </p>
+                            <div className="mt-3 flex flex-wrap gap-1.5">
+                              {project.technologies.map((tech) => (
+                                <span
+                                  key={tech}
+                                  className="rounded-full bg-white/5 px-2.5 py-0.5 text-xs text-muted-foreground"
+                                >
+                                  {tech}
+                                </span>
+                              ))}
+                            </div>
+                            <div className="mt-4 flex gap-4 text-sm">
+                              <Link
+                                href={project.href}
+                                target="_blank"
+                                className="text-primary hover:underline"
+                              >
+                                Code →
+                              </Link>
+                              {project.deployUrl &&
+                                project.deployUrl !== "#" && (
+                                  <Link
+                                    href={project.deployUrl}
+                                    target="_blank"
+                                    className="text-primary hover:underline"
+                                  >
+                                    Live demo →
+                                  </Link>
+                                )}
+                            </div>
                           </CardContent>
                         </Card>
-                        
-                        {/* Project Points - Only show for current slide */}
-                        {index + 1 === current && (
-                          <div className="rounded-lg bg-white/5 p-4 backdrop-blur">
-                            <h4 className="mb-3 text-sm font-semibold text-foreground">Key Features:</h4>
-                            <ul className="space-y-2">
-                              {project.points.map((point, i) => (
-                                <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
-                                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                                  <span>{point}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+
+                        {/* Key features (rendered for every slide to avoid layout shift) */}
+                        <div className="rounded-lg bg-white/5 p-4 backdrop-blur">
+                          <h4 className="mb-3 text-sm font-semibold text-foreground">
+                            Key Features:
+                          </h4>
+                          <ul className="space-y-2">
+                            {project.points.map((point, i) => (
+                              <li
+                                key={i}
+                                className="flex items-start gap-2 text-xs text-muted-foreground"
+                              >
+                                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                                <span>{point}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
                     </CarouselItem>
                   ))}
@@ -420,212 +532,180 @@ export default function Home() {
         </section>
 
         {/* Education */}
-        <section id="education" data-scroll-section>
-          <div
-            data-scroll
-            data-scroll-speed=".4"
-            data-scroll-position="top"
-            className="my-8 flex flex-col justify-start space-y-10"
-          >
-            <div>
-              <span className="text-gradient clash-grotesk text-sm font-semibold tracking-tighter">
-                🎓 Education
-              </span>
-              <h2 className="mt-3 text-4xl font-semibold tracking-tight xl:text-6xl">
-                Academic Background
-              </h2>
-            </div>
-            <div className="space-y-6">
-              {education.map((edu, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="rounded-lg bg-white/5 p-6 backdrop-blur"
-                >
-                  <h3 className="text-xl font-semibold text-foreground">{edu.institution}</h3>
-                  <p className="mt-1 text-lg text-primary">{edu.degree}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{edu.period}</p>
-                </motion.div>
-              ))}
-            </div>
+        <Section
+          id="education"
+          eyebrow="🎓 Education"
+          title="Academic Background"
+        >
+          <div className="space-y-6">
+            {education.map((edu, index) => (
+              <RevealCard key={index} index={index}>
+                <h3 className="text-xl font-semibold text-foreground">
+                  {edu.institution}
+                </h3>
+                <p className="mt-1 text-lg text-primary">{edu.degree}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {edu.period}
+                </p>
+              </RevealCard>
+            ))}
           </div>
-        </section>
+        </Section>
 
         {/* Experience */}
-        <section id="experience" data-scroll-section>
-          <div
-            data-scroll
-            data-scroll-speed=".4"
-            data-scroll-position="top"
-            className="my-8 flex flex-col justify-start space-y-10"
-          >
-            <div>
-              <span className="text-gradient clash-grotesk text-sm font-semibold tracking-tighter">
-                💼 Experience
-              </span>
-              <h2 className="mt-3 text-4xl font-semibold tracking-tight xl:text-6xl">
-                Professional Journey
-              </h2>
-            </div>
-            <div className="space-y-6">
-              {experience.map((exp, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="rounded-lg bg-white/5 p-6 backdrop-blur"
-                >
-                  <h3 className="text-xl font-semibold text-foreground">{exp.title}</h3>
-                  <p className="mt-1 text-lg text-primary">{exp.company}</p>
-                  <p className="text-sm text-muted-foreground">{exp.location}  {exp.period}</p>
-                  <ul className="mt-4 list-disc space-y-2 pl-5">
-                    {exp.points.map((point, i) => (
-                      <li key={i} className="text-sm text-muted-foreground">{point}</li>
-                    ))}
-                  </ul>
-                </motion.div>
-              ))}
-            </div>
+        <Section
+          id="experience"
+          eyebrow="💼 Experience"
+          title="Professional Journey"
+        >
+          <div className="space-y-6">
+            {experience.map((exp, index) => (
+              <RevealCard key={index} index={index}>
+                <h3 className="text-xl font-semibold text-foreground">
+                  {exp.title}
+                </h3>
+                <p className="mt-1 text-lg text-primary">{exp.company}</p>
+                <p className="text-sm text-muted-foreground">
+                  {exp.location
+                    ? `${exp.location} · ${exp.period}`
+                    : exp.period}
+                </p>
+                <ul className="mt-4 list-disc space-y-2 pl-5">
+                  {exp.points.map((point, i) => (
+                    <li key={i} className="text-sm text-muted-foreground">
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+              </RevealCard>
+            ))}
           </div>
-        </section>
+        </Section>
 
         {/* Achievements */}
-        <section id="achievements" data-scroll-section>
-          <div
-            data-scroll
-            data-scroll-speed=".4"
-            data-scroll-position="top"
-            className="my-8 flex flex-col justify-start space-y-10"
-          >
-            <div>
-              <span className="text-gradient clash-grotesk text-sm font-semibold tracking-tighter">
-                🏆 Achievements
-              </span>
-              <h2 className="mt-3 text-4xl font-semibold tracking-tight xl:text-6xl">
-                Awards & Recognition
-              </h2>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              {achievements.map((achievement, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="rounded-lg bg-white/5 p-6 backdrop-blur transition duration-300 hover:bg-white/10"
-                >
-                  <p className="text-sm text-muted-foreground">{achievement}</p>
-                </motion.div>
-              ))}
-            </div>
+        <Section
+          id="achievements"
+          eyebrow="🏆 Achievements"
+          title="Awards & Recognition"
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            {achievements.map((achievement, index) => (
+              <RevealCard
+                key={index}
+                index={index}
+                className="transition duration-300 hover:bg-white/10"
+              >
+                <p className="text-sm text-muted-foreground">{achievement}</p>
+              </RevealCard>
+            ))}
           </div>
-        </section>
+        </Section>
+
+        {/* Certifications */}
+        <Section
+          id="certifications"
+          eyebrow="📜 Certifications"
+          title="Courses & Certifications"
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            {certifications.map((cert, index) => (
+              <RevealCard
+                key={index}
+                index={index}
+                className="flex flex-col transition duration-300 hover:bg-white/10"
+              >
+                <h3 className="text-xl font-semibold text-foreground">
+                  {cert.title}
+                </h3>
+                <p className="mt-1 text-sm text-primary">{cert.provider}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {cert.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="rounded-full bg-white/5 px-3 py-1 text-xs text-muted-foreground"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </RevealCard>
+            ))}
+          </div>
+        </Section>
 
         {/* Skills */}
-        <section id="skills" data-scroll-section>
-          <div
-            data-scroll
-            data-scroll-speed=".4"
-            data-scroll-position="top"
-            className="my-8 flex flex-col justify-start space-y-10"
-          >
-            <div>
-              <span className="text-gradient clash-grotesk text-sm font-semibold tracking-tighter">
-                🛠️ Skills
-              </span>
-              <h2 className="mt-3 text-4xl font-semibold tracking-tight xl:text-6xl">
-                Technical Expertise
-              </h2>
-            </div>
-            <div className="flex flex-col gap-8 xl:flex-row xl:items-start">
-              {/* Skills List */}
-              <div className="space-y-8 xl:w-1/2">
-                {Object.entries(skills).map(([category, skillList]) => (
-                  <div key={category}>
-                    <h3 className="mb-4 text-lg font-semibold capitalize text-foreground">
-                      {category.replace(/([A-Z])/g, ' $1').trim()}
-                    </h3>
-                    <div className="flex flex-wrap gap-3">
-                      {skillList.map((skill) => (
-                        <motion.div
-                          key={skill.name}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          whileInView={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3 }}
-                          viewport={{ once: true }}
-                          className="flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 backdrop-blur transition duration-300 hover:bg-white/10"
-                        >
-                          <Image src={skill.icon} alt={skill.name} width={64} height={64} />
-                          <span className="text-sm text-foreground">{skill.name}</span>
-                        </motion.div>
-                      ))}
-                    </div>
+        <Section id="skills" eyebrow="🛠️ Skills" title="Technical Expertise">
+          <div className="flex flex-col gap-8 xl:flex-row xl:items-start">
+            {/* Skills List */}
+            <div className="space-y-8 xl:w-1/2">
+              {Object.entries(skills).map(([category, skillList]) => (
+                <div key={category}>
+                  <h3 className="mb-4 text-lg font-semibold capitalize text-foreground">
+                    {category.replace(/([A-Z])/g, " $1").trim()}
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {skillList.map((skill) => (
+                      <motion.div
+                        key={skill.name}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                        viewport={{ once: true }}
+                        className="flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 backdrop-blur transition duration-300 hover:bg-white/10"
+                      >
+                        <Image
+                          src={skill.icon}
+                          alt={skill.name}
+                          width={24}
+                          height={24}
+                          className="h-6 w-6"
+                        />
+                        <span className="text-sm text-foreground">
+                          {skill.name}
+                        </span>
+                      </motion.div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              {/* Spline Animation */}
-              <div
-                data-scroll
-                data-scroll-speed="-.01"
-                id={styles["canvas-container"]}
-                className="mt-14 h-[400px] w-full xl:mt-0 xl:h-[600px] xl:w-1/2"
-              >
-                <Suspense fallback={<span>Loading...</span>}>
-                  <Spline scene="/assets/scene.splinecode" />
-                </Suspense>
-              </div>
+                </div>
+              ))}
+            </div>
+            {/* Spline Animation */}
+            <div
+              data-scroll
+              data-scroll-speed="-.01"
+              id={styles["canvas-container"]}
+              className="mt-14 h-[400px] w-full xl:mt-0 xl:h-[600px] xl:w-1/2"
+            >
+              <Spline scene="/assets/scene.splinecode" />
             </div>
           </div>
-          
-        </section>
+        </Section>
 
-        {/* LeetCode */}
-        
-        <section id="leetcode" data-scroll-section>
-          <div
-            data-scroll
-            data-scroll-speed=".4"
-            data-scroll-position="top"
-            className="my-8 flex flex-col justify-start space-y-10"
-          >
-            <div>
-              <span className="text-gradient clash-grotesk text-sm font-semibold tracking-tighter">
-                💻 DSA
-              </span>
-              <h2 className="mt-3 text-4xl font-semibold tracking-tight xl:text-6xl">
-                DSA Solving Profile
-              </h2>
-              <p className="mt-2 text-muted-foreground">
-                Check out my problem-solving Statistics.
-              </p>
+        {/* DSA */}
+        <Section
+          id="leetcode"
+          eyebrow="💻 DSA"
+          title="DSA Solving Profile"
+          description="Check out my problem-solving statistics."
+        >
+          <div className="flex flex-col items-start gap-8 xl:flex-row xl:items-stretch">
+            {/* Codolio Card */}
+            <div className="w-full xl:w-[420px]">
+              <iframe
+                src="https://codolio.com/profile/utkarshpawade/card"
+                width="100%"
+                height="700"
+                style={{ border: "none" }}
+                loading="lazy"
+                title="Utkarsh Pawade Codolio Card"
+                className="rounded-lg"
+              />
             </div>
-            
-            {/* Flex container for Codolio card and statistics */}
-            <div className="flex flex-col items-start gap-8 xl:flex-row xl:items-stretch">
-              {/* Codolio Card */}
-              <div className="w-full xl:w-[420px]">
-                <iframe
-                  src="https://codolio.com/profile/utkarshpawade/card"
-                  width="100%"
-                  height="700"
-                  style={{ border: "none" }}
-                  loading="lazy"
-                  title="Utkarsh Pawade Codolio Card"
-                  className="rounded-lg"
-                />
-              </div>
 
-              {/* LeetCode Statistics */}
-              <LeetCodeStats />
-            </div>
+            {/* LeetCode Statistics */}
+            <LeetCodeStats />
           </div>
-        </section>
+        </Section>
 
         {/* Contact */}
         <section id="contact" data-scroll-section className="my-16">
@@ -640,37 +720,55 @@ export default function Home() {
               <span className="text-gradient clash-grotesk">together.</span>
             </h2>
             <p className="mt-1.5 text-base tracking-tight text-muted-foreground xl:text-lg">
-              I&apos;m currently looking for internships and open to
-              discussing new projects.
+              I&apos;m currently looking for internships and open to discussing
+              new projects.
             </p>
-            
+
             {/* Social Links */}
             <div className="mt-8 flex items-center justify-center gap-6">
               <Link
-                href="https://www.linkedin.com/in/utkarsh-pawade-4398831b0/" // TODO: Replace with your LinkedIn URL
+                href="https://www.linkedin.com/in/utkarsh-pawade-4398831b0/"
                 target="_blank"
+                rel="noreferrer"
+                aria-label="LinkedIn"
                 className="rounded-full bg-white/5 p-3 transition duration-300 hover:bg-white/10"
               >
-                <svg className="h-6 w-6 text-foreground" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                <svg
+                  className="h-6 w-6 text-foreground"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
               </Link>
               <Link
-                href="https://github.com/utkarshpawade" // TODO: Replace with your GitHub URL
+                href="https://github.com/utkarshpawade"
                 target="_blank"
+                rel="noreferrer"
+                aria-label="GitHub"
                 className="rounded-full bg-white/5 p-3 transition duration-300 hover:bg-white/10"
               >
-                <svg className="h-6 w-6 text-foreground" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                <svg
+                  className="h-6 w-6 text-foreground"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                 </svg>
               </Link>
               <Link
-                href="https://leetcode.com/u/utkarshpawade" // TODO: Replace with your LeetCode URL
+                href="https://leetcode.com/u/utkarshpawade"
                 target="_blank"
+                rel="noreferrer"
+                aria-label="LeetCode"
                 className="rounded-full bg-white/5 p-3 transition duration-300 hover:bg-white/10"
               >
-                <svg className="h-6 w-6 text-foreground" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .066-.523 2.545 2.545 0 0 1 .619-1.164L9.13 8.114c1.058-1.134 3.204-1.27 4.43-.278l3.501 2.831c.593.48 1.461.387 1.94-.207a1.384 1.384 0 0 0-.207-1.943l-3.5-2.831c-.8-.647-1.766-1.045-2.774-1.202l2.015-2.158A1.384 1.384 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z"/>
+                <svg
+                  className="h-6 w-6 text-foreground"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .066-.523 2.545 2.545 0 0 1 .619-1.164L9.13 8.114c1.058-1.134 3.204-1.27 4.43-.278l3.501 2.831c.593.48 1.461.387 1.94-.207a1.384 1.384 0 0 0-.207-1.943l-3.5-2.831c-.8-.647-1.766-1.045-2.774-1.202l2.015-2.158A1.384 1.384 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z" />
                 </svg>
               </Link>
             </div>
@@ -687,7 +785,9 @@ export default function Home() {
 function ContactForm() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -700,7 +800,7 @@ function ContactForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          access_key: "7f92dbbd-1c9e-4ebc-a6a3-eaa4ccd18c08", // Get free key from https://web3forms.com
+          access_key: "7f92dbbd-1c9e-4ebc-a6a3-eaa4ccd18c08",
           subject: `Portfolio Contact from ${email}`,
           email: email,
           message: message,
@@ -727,7 +827,10 @@ function ContactForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 flex w-full max-w-md flex-col gap-4">
+    <form
+      onSubmit={handleSubmit}
+      className="mt-8 flex w-full max-w-md flex-col gap-4"
+    >
       {status === "success" && (
         <div className="rounded-lg bg-green-500/20 px-4 py-3 text-center text-sm text-green-400">
           Message sent successfully! I&apos;ll get back to you soon.
@@ -735,7 +838,8 @@ function ContactForm() {
       )}
       {status === "error" && (
         <div className="rounded-lg bg-red-500/20 px-4 py-3 text-center text-sm text-red-400">
-          Failed to send message. Please email directly at utkarshpawade2@gmail.com
+          Failed to send message. Please email directly at
+          utkarshpawade2@gmail.com
         </div>
       )}
       <input
@@ -766,7 +870,6 @@ function ContactForm() {
 function Gradient() {
   return (
     <>
-      
       <div className="absolute -top-40 right-0 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
         <svg
           className="relative left-[calc(50%-11rem)] -z-10 h-[21.1875rem] max-w-none -translate-x-1/2 rotate-[30deg] sm:left-[calc(50%-30rem)] sm:h-[42.375rem]"
@@ -820,5 +923,67 @@ function Gradient() {
         </svg>
       </div>
     </>
+  );
+}
+
+function Section({
+  id,
+  eyebrow,
+  title,
+  description,
+  className,
+  children,
+}: {
+  id: string;
+  eyebrow: string;
+  title: string;
+  description?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section id={id} data-scroll-section className={className}>
+      <div
+        data-scroll
+        data-scroll-speed=".4"
+        data-scroll-position="top"
+        className="my-8 flex flex-col justify-start space-y-10"
+      >
+        <div>
+          <span className="text-gradient clash-grotesk text-sm font-semibold tracking-tighter">
+            {eyebrow}
+          </span>
+          <h2 className="mt-3 text-4xl font-semibold tracking-tight xl:text-6xl">
+            {title}
+          </h2>
+          {description && (
+            <p className="mt-2 text-muted-foreground">{description}</p>
+          )}
+        </div>
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function RevealCard({
+  index = 0,
+  className,
+  children,
+}: {
+  index?: number;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className={cn("rounded-lg bg-white/5 p-6 backdrop-blur", className)}
+    >
+      {children}
+    </motion.div>
   );
 }

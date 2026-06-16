@@ -92,7 +92,6 @@ export default function LeetCodeStats() {
           <h3 className="clash-grotesk text-gradient text-2xl font-bold">
             Leetcode Profile
           </h3>
-          {/* <p className="text-sm text-muted-foreground">{data.rank}</p> */}
         </div>
         <div className="rounded-lg bg-white/10 px-4 py-2">
           <p className="text-xs text-muted-foreground">Contest Rating</p>
@@ -100,25 +99,6 @@ export default function LeetCodeStats() {
             {data.contestRating ?? "N/A"}
           </p>
         </div>
-      </div>
-
-      {/* XP Progress Bar */}
-      <div className="space-y-2">
-        {/* <div className="flex justify-between text-sm"> */}
-          {/* <span className="text-muted-foreground">XP Progress</span> */}
-          {/* <span className="text-muted-foreground">
-            {data.xp} / {data.maxXp}
-          </span> */}
-        {/* </div> */}
-        {/* <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-          <motion.div
-            initial={{ width: 0 }}
-            whileInView={{ width: `${(data.xp / data.maxXp) * 100}%` }}
-            transition={{ duration: 1, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="h-full rounded-full bg-gradient-to-r from-green-500 to-blue-500"
-          />
-        </div> */}
       </div>
 
       {/* Stats Grid */}
@@ -159,7 +139,9 @@ export default function LeetCodeStats() {
         </div>
         <div className="rounded-lg bg-white/5 p-4 text-center">
           <span className="clash-grotesk text-gradient text-2xl font-bold">
-            {data.globalRanking > 0 ? data.globalRanking.toLocaleString() : "N/A"}
+            {data.globalRanking > 0
+              ? data.globalRanking.toLocaleString()
+              : "N/A"}
           </span>
           <p className="text-xs text-muted-foreground">Global Rank</p>
         </div>

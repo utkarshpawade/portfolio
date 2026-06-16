@@ -86,7 +86,7 @@ export default function Container(props: ContainerProps) {
   const meta = {
     title: "Utkarsh Pawade",
     description: `Pre-Final Year CSE student at IIIT Sonepat | Full-Stack Developer`,
-    image: "/assets/logo.webp",
+    image: "https://www.Utkarsh.codes/assets/logo.webp",
     type: "website",
     ...customMeta,
   };
