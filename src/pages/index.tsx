@@ -1,92 +1,236 @@
-import Container from "@/components/Container";
-import { useEffect, useRef, useState } from "react";
-import styles from "@/styles/Home.module.css";
-import { Button } from "@/components/ui/button";
-import { TriangleDownIcon } from "@radix-ui/react-icons";
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import Head from "next/head";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi,
-} from "@/components/ui/carousel";
-import VanillaTilt from "vanilla-tilt";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import LeetCodeStats from "@/components/LeetCodeStats";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
-const Spline = dynamic(() => import("@splinetool/react-spline"), {
-  ssr: false,
-  loading: () => (
-    <span className="text-sm text-muted-foreground">Loading 3D scene…</span>
-  ),
-});
+/* ── Themeable color roles (resolved per theme in globals.css) ─────── */
+const INK = "var(--text)"; /* primary text                 */
+const PAPER = "var(--bg)"; /* page background              */
+const SURFACE = "var(--surface)"; /* surface / card / image bg    */
+const ACCENT = "var(--accent)"; /* accent / action              */
+const MUTED = "var(--muted)"; /* secondary / muted text       */
+const INK_SOFT = "var(--soft)"; /* body text (soft)             */
+const LINE = "var(--border)"; /* borders & dividers           */
+const LINE_STRONG = "var(--border-strong)";
 
-const aboutStats = [
-  { label: "DSA Problems Solved", value: "700+" },
-  { label: "Projects", value: "5+" },
-  { label: "Internships", value: "2" },
+/* Inverted feature bands (stats / experience / skills / awards) */
+const INV_BG = "var(--inv-bg)";
+const INV_TEXT = "var(--inv-text)";
+const INV_SOFT = "var(--inv-soft)";
+const INV_MUTED = "var(--inv-muted)";
+const INV_LINE = "color-mix(in srgb, var(--inv-text) 16%, transparent)";
+const INV_LINE_SOFT = "color-mix(in srgb, var(--inv-text) 8%, transparent)";
+const INV_LINE_STRONG = "color-mix(in srgb, var(--inv-text) 22%, transparent)";
+
+const MONO = "var(--font-jetbrains-mono), monospace";
+
+/* ── Content ──────────────────────────────────────────────────────── */
+const NAME = "Utkarsh Pawade";
+const TAGLINE = "Portfolio";
+
+const navLinks = [
+  { href: "#work", label: "Work" },
+  { href: "#experience", label: "Experience" },
+  { href: "#education", label: "Education" },
+  { href: "#skills", label: "Skills" },
+  { href: "#awards", label: "Awards" },
+  { href: "#contact", label: "Contact" },
 ];
 
-const education = [
+type Project = {
+  num: string;
+  short: string;
+  img: string;
+  title: string;
+  desc: string;
+  tags: string[];
+  code: string;
+  demo: string;
+  demoLabel: string;
+};
+
+const projects: Project[] = [
   {
-    institution: "Indian Institute of Information Technology Sonepat",
-    degree: "Bachelor of Technology in Computer Science and Engineering",
-    period: "Aug 2023 - May 2027*",
+    num: "01",
+    short: "AI Cloud IDE",
+    img: "/assets/ide.webp",
+    title: "AI-Powered Cloud IDE",
+    desc: "Browser-based AI coding platform where an autonomous agent scaffolds, edits, and runs full projects from plain-English prompts — inspired by Cursor, Bolt, and Lovable.",
+    tags: [
+      "Next.js 16",
+      "React 19",
+      "TypeScript",
+      "Convex",
+      "Inngest AgentKit",
+      "Claude Sonnet 4",
+      "WebContainers",
+      "CodeMirror 6",
+    ],
+    code: "https://github.com/utkarshpawade/IDEce",
+    demo: "",
+    demoLabel: "Live demo",
+  },
+  {
+    num: "02",
+    short: "Nextable",
+    img: "/assets/nextable.webp",
+    title: "Nextable — Agentic App Generator",
+    desc: "AI-powered Next.js 15 application generator with multi-model LLM support (GPT, Grok, Gemini) using Inngest Agent Kit for autonomous code generation.",
+    tags: [
+      "Next.js",
+      "tRPC",
+      "Prisma",
+      "Inngest Agent Kit",
+      "E2B",
+      "PostgreSQL",
+      "Clerk",
+    ],
+    code: "https://github.com/utkarshpawade/Nextable",
+    demo: "",
+    demoLabel: "Live demo",
+  },
+  {
+    num: "03",
+    short: "BrightSync",
+    img: "/assets/brightysync.webp",
+    title: "BrightSync — Brightness Synchronizer",
+    desc: "A Windows desktop application that synchronizes brightness across laptop internal displays and external monitors using native Windows APIs and hardware-level control.",
+    tags: [
+      "Electron",
+      "TypeScript",
+      "React",
+      "Node.js",
+      "C++",
+      "N-API",
+      "Windows WMI",
+      "DDC/CI",
+    ],
+    code: "https://github.com/utkarshpawade/BrightSync",
+    demo: "https://youtu.be/4yxZ5b1Is8E",
+    demoLabel: "Watch demo",
+  },
+  {
+    num: "04",
+    short: "Ticket Booking",
+    img: "/assets/Screenshot 2026-05-05 155113.png",
+    title: "Scalable Ticket Booking",
+    desc: "Full-stack MERN movie ticket booking platform with seat selection, real-time availability, background jobs, and an admin dashboard for managing movies and bookings.",
+    tags: ["MERN Stack", "REST APIs", "Clerk Auth", "Inngest", "MongoDB"],
+    code: "https://github.com/utkarshpawade/Scalable-Ticket-Booking-System",
+    demo: "https://scalable-ticket-booking-system.vercel.app/",
+    demoLabel: "Live demo",
   },
 ];
 
 const experience = [
   {
-    title: "Full Stack Developer Intern",
+    role: "Full Stack Developer Intern",
     company: "Marvedge",
-    location: "Remote",
-    period: "June 2026 – Present",
+    location: "Remote · June 2026 – Present",
+    period: "June 2026 — Now",
     points: [
       "Developed AI-powered demo generation workflows that transformed 500+ product URLs, recordings, and web pages into interactive product demos, reducing manual demo creation effort by 85%.",
-      "Built and optimized web scraping, content extraction, and LLM-based product understanding pipelines that processed 10,000+ pages of product content, improving automated feature discovery and demo generation accuracy.",
-      "Engineered AI-driven demo generation features including automated script creation, voiceovers, subtitles, and personalization, enabling the production of 1,000+ interactive demos while reducing turnaround time from hours to under 2 minutes.",
+      "Built web scraping, content extraction, and LLM-based product understanding pipelines that processed 10,000+ pages of product content, improving automated feature discovery.",
+      "Engineered AI-driven demo features — automated script creation, voiceovers, subtitles, and personalization — producing 1,000+ interactive demos and cutting turnaround from hours to under 2 minutes.",
     ],
   },
   {
-    title: "Machine Learning Research Intern",
-    company: "National Institute of Technology, Calicut",
-    location: "Kozhikode, Kerala",
-    period: "June 2025 – Aug 2025",
+    role: "Machine Learning Research Intern",
+    company: "NIT Calicut",
+    location: "Kozhikode, Kerala · June 2025 – Aug 2025",
+    period: "Jun – Aug 2025",
     points: [
-      "Studied and reproduced a Gaussian Deformation Field Network with HexPlane Encoding by thoroughly understanding the paper's theoretical foundations and implementing the full pipeline in Google Colab.",
-      "Implemented training and inference workflows using PyTorch, gaining hands-on experience with neural field representations, memory–compute trade-offs, and performance profiling.",
-      "Recreated and experimented with a state-of-the-art 3D vision research model, analyzing architectural choices, optimization strategies, and limitations for potential real-world deployment.",
+      "Studied and reproduced a Gaussian Deformation Field Network with HexPlane Encoding, implementing the full pipeline from the paper's theoretical foundations in Google Colab.",
+      "Implemented training and inference workflows in PyTorch, gaining hands-on experience with neural field representations and memory–compute trade-offs.",
+      "Recreated a state-of-the-art 3D vision research model, analyzing architectural choices, optimization strategies, and limitations for real-world deployment.",
     ],
   },
   {
-    title: "Open Source Contributor",
+    role: "Open Source Contributor",
     company: "Stan",
-    period: "Feb 2026 – May 2026",
+    location: "",
+    period: "Feb – May 2026",
     points: [
-      "Stan-dev/bayesplot on the R package for Bayesian MCMC visualization with 112K+ monthly CRAN downloads; merged 29 PRs across 72 commits and 4,070+ lines of code.",
-      "Modernized the codebase by replacing deprecated dplyr, tidyselect, and reshape2 APIs and migrated error handling across PPC/MCMC modules from stop()/stopifnot() to rlang::abort() with descriptive diagnostics.",
-      "Fixed silent-failure bugs in core MCMC data pipelines (unequal chain-length recycling, NA propagation, colname validation) and expanded unit-test coverage for data() helpers and tidy parameter selection",
+      "Contributed to stan-dev/bayesplot, an R package for Bayesian MCMC visualization with 112K+ monthly CRAN downloads — merged 29 PRs across 72 commits and 4,070+ lines of code.",
+      "Modernized the codebase by replacing deprecated dplyr, tidyselect, and reshape2 APIs and migrating error handling to rlang::abort() with descriptive diagnostics.",
+      "Fixed silent-failure bugs in core MCMC data pipelines and expanded unit-test coverage for data helpers and tidy parameter selection.",
     ],
   },
 ];
 
+const education = [
+  {
+    period: "Aug 2023 — May 2027",
+    institution: "Indian Institute of Information Technology, Sonepat",
+    degree: "Bachelor of Technology — Computer Science & Engineering",
+  },
+];
+
+const skillGroups = [
+  {
+    label: "Languages",
+    items: ["Java", "Python", "R", "TypeScript", "JavaScript", "SQL"],
+  },
+  { label: "Frontend", items: ["React.js", "Next.js", "Tailwind CSS"] },
+  { label: "Backend", items: ["Node.js", "Express.js"] },
+  { label: "Databases", items: ["MongoDB", "PostgreSQL"] },
+  { label: "DevOps", items: ["Docker", "Kubernetes"] },
+  { label: "Tools", items: ["GitHub", "Linux"] },
+  { label: "Analytics", items: ["Matplotlib", "Pandas", "NumPy", "SeaBorn"] },
+];
+
+const dsaStats = [
+  { value: "700+", label: "Problems solved" },
+  { value: "1868", label: "Peak rating" },
+  { value: "Top 5.5%", label: "LeetCode percentile" },
+];
+
+const dsaPlatforms = [
+  { name: "LeetCode", url: "https://leetcode.com/u/utkarshpawade/" },
+  {
+    name: "GeeksforGeeks",
+    url: "https://www.geeksforgeeks.org/profile/utkarshpawade",
+  },
+  { name: "Codeforces", url: "https://codeforces.com/profile/utkarsh134" },
+  { name: "CodeChef", url: "https://www.codechef.com/users/utkarshpawade" },
+];
+
 const achievements = [
-  "Reliance Foundation Scholarship (2024) – Awarded the Reliance Foundation Scholarship after clearing a highly competitive national-level entrance exam with a low acceptance rate, recognized for academic excellence.",
-  "Top 1% in Maharashtra State Board – Ranked among the top 1 percentile of 12th Grade students in Maharashtra.",
-  "Pariksha Pe Charcha (2020) – Selected among 1,050 students from 2,60,000 applicants nationwide; interacted with Hon. Prime Minister Shri Narendra Modi at Talkatora Stadium, New Delhi.",
-  "Solved 700+ Data Structures & Algorithms problems across platforms including LeetCode, GeeksforGeeks, Codeforces, CodeChef.",
-  "Peak Rating of 1868 on LeetCode (top 5.51 percent)",
+  {
+    title: "Reliance Foundation Scholarship",
+    year: "2024",
+    detail:
+      "Awarded after clearing a competitive national-level entrance exam with a low acceptance rate, recognized for academic excellence.",
+  },
+  {
+    title: "Top 1% — Maharashtra State Board",
+    year: "",
+    detail:
+      "Ranked among the top 1 percentile of Grade 12 students in Maharashtra.",
+  },
+  {
+    title: "Pariksha Pe Charcha",
+    year: "2020",
+    detail:
+      "Selected among 1,050 students from 2,60,000 applicants nationwide; interacted with the Hon. Prime Minister at Talkatora Stadium, New Delhi.",
+  },
+  {
+    title: "700+ DSA problems solved",
+    year: "",
+    detail: "Across LeetCode, GeeksforGeeks, Codeforces and CodeChef.",
+  },
+  {
+    title: "Peak LeetCode rating 1868",
+    year: "",
+    detail: "Ranked in the top 5.51 percentile by contest rating.",
+  },
 ];
 
 const certifications = [
   {
-    title: "Complete Data Science, Machine Learning, DL, NLP Bootcamp",
+    title: "Complete Data Science, ML, DL & NLP Bootcamp",
     provider: "Udemy",
     skills: [
       "Machine Learning",
@@ -98,687 +242,1287 @@ const certifications = [
   {
     title: "Complete Full-Stack Web Development Bootcamp",
     provider: "Udemy",
-    skills: ["ReactJS", "Express.js", "NodeJS", "MongoDB"],
+    skills: ["React", "Express.js", "Node.js", "MongoDB"],
   },
 ];
 
-const skills = {
-  languages: [
-    { name: "Java", icon: "/skills/icons8-java.svg" },
-    { name: "Python", icon: "/skills/icons8-python.svg" },
-    { name: "R", icon: "/skills/icons8-r-project.svg" },
-    { name: "TypeScript", icon: "/skills/icons8-typescript.svg" },
-    { name: "JavaScript", icon: "/skills/icons8-javascript.svg" },
-    { name: "SQL", icon: "/skills/icons8-sql.svg" },
-  ],
-  frontend: [
-    { name: "React.js", icon: "/skills/icons8-react.svg" },
-    { name: "Next.js", icon: "/skills/icons8-nextjs.svg" },
-    { name: "Tailwind CSS", icon: "/skills/icons8-tailwind-css.svg" },
-  ],
-  backend: [
-    { name: "Node.js", icon: "/skills/icons8-nodejs.svg" },
-    { name: "Express.js", icon: "/skills/icons8-express-js.svg" },
-  ],
-  databases: [
-    { name: "MongoDB", icon: "/skills/icons8-mongodb.svg" },
-    { name: "PostgreSQL", icon: "/skills/icons8-postgresql.svg" },
-  ],
-  devops: [
-    { name: "Docker", icon: "/skills/icons8-docker.svg" },
-    { name: "Kubernetes", icon: "/skills/icons8-kubernetes.svg" },
-  ],
-  tools: [
-    { name: "GitHub", icon: "/skills/icons8-github.svg" },
-    { name: "Linux", icon: "/skills/icons8-linux.svg" },
-  ],
-  analytics: [
-    { name: "Matplotlib", icon: "/skills/icons8-matplotlib.svg" },
-    { name: "Pandas", icon: "/skills/icons8-pandas.svg" },
-    { name: "NumPy", icon: "/skills/icons8-numpy.svg" },
-    { name: "SeaBorn", icon: "/skills/seaborn-1.svg" },
-  ],
+const marquee = [
+  "Full-Stack Development",
+  "Machine Learning",
+  "AI Agents",
+  "TypeScript",
+  "React",
+  "Next.js",
+  "Distributed Systems",
+  "Open Source",
+  "MERN",
+  "Research",
+];
+
+/* ── Shared style fragments ───────────────────────────────────────── */
+const wrap: React.CSSProperties = {
+  maxWidth: 1280,
+  margin: "0 auto",
+  padding: "0 clamp(20px,5vw,40px)",
 };
 
-const projects = [
-  {
-    title: "AI-Powered Cloud IDE",
-    description:
-      "Browser-based AI coding platform where an autonomous agent scaffolds, edits, and runs full projects from plain-English prompts — inspired by Cursor, Bolt, and Lovable.",
-    image: "/assets/ide.webp",
-    href: "https://github.com/utkarshpawade/IDEce",
-    deployUrl: "#",
-    technologies: [
-      "Next.js 16",
-      "React 19",
-      "TypeScript",
-      "Tailwind CSS 4",
-      "Convex",
-      "Inngest AgentKit",
-      "Claude Sonnet 4 / Gemini",
-      "WebContainers",
-      "CodeMirror 6",
-      "Clerk",
-      "Sentry",
-      "shadcn/ui",
-    ],
-    points: [
-      "Built an agentic AI builder that turns natural-language prompts into entire projects via tool-using AI (file create/read/update/delete/rename, folder management, live doc scraping), plus inline ghost-text suggestions and a Cmd+K quick-edit flow on selected code.",
-      "Delivered a real in-browser IDE with a CodeMirror 6 editor (syntax highlighting, multi-cursor, minimap, code folding), file tree, and tabs, executing generated apps via WebContainers with an integrated xterm.js terminal and live preview.",
-      "Engineered a real-time, event-driven architecture with one-click GitHub import/export, reliable long-running AI jobs through background orchestration, and production-grade authentication, billing, and error/LLM monitoring.",
-    ],
-  },
-  {
-    title: "Nextable - Agentic App Generator",
-    description:
-      "AI-powered Next.js 15 application generator with multi-model LLM support using Inngest Agent Kit.",
-    image: "/assets/nextable.webp",
-    href: "https://github.com/utkarshpawade/Nextable",
-    deployUrl: "#",
-    technologies: ["Next.js", "tRPC", "Prisma", "Inngest Agent Kit", "E2B"],
-    points: [
-      "Built an AI-powered Next.js 15 application generator with multi-model LLM support (GPT, Grok, Gemini) using Inngest Agent Kit for autonomous code generation.",
-      "Architected a scalable full-stack system using tRPC, Prisma, PostgreSQL, and Clerk, enabling type-safe APIs, authentication, and project-level code tracking.",
-      "Developed an agentic AI workflow with custom tools for code generation, file operations, and dependency management.",
-    ],
-  },
-  {
-    title: "BrightSync - Cross-Display Brightness Synchronizer",
-    description:
-      "A Windows desktop application that synchronizes brightness across laptop internal displays and external monitors using native Windows APIs.",
-    image: "/assets/brightysync.webp",
-    href: "https://github.com/utkarshpawade/BrightSync",
-    deployUrl: "https://youtu.be/4yxZ5b1Is8E",
-    technologies: [
-      "Electron",
-      "TypeScript",
-      "React",
-      "Node.js",
-      "C++",
-      "N-API",
-      "Windows WMI",
-      "DDC/CI",
-    ],
+const eyebrow: React.CSSProperties = {
+  fontFamily: MONO,
+  fontSize: 12,
+  letterSpacing: "0.16em",
+  textTransform: "uppercase",
+  color: ACCENT,
+};
 
-    points: [
-      "Built a Windows desktop app to synchronize brightness across internal and external monitors using native Windows APIs.",
-      "Developed a C++ native addon (N-API) integrating WMI and DDC/CI for direct hardware-level brightness control.",
-      "Architected a layered Electron system with secure IPC, global hotkeys, system tray support, and smooth animated brightness transitions.",
-    ],
-  },
-  {
-    title: "Scalable Ticket Booking",
-    description:
-      "Full-stack MERN Movie Ticket Booking Platform with seat selection, real-time availability, and admin dashboard.",
-    image: "/assets/Screenshot 2026-05-05 155113.png",
-    href: "https://github.com/utkarshpawade/Scalable-Ticket-Booking-System",
-    deployUrl: "https://scalable-ticket-booking-system.vercel.app/",
-    technologies: ["MERN Stack", "REST APIs", "Clerk Auth", "Inngest"],
-    points: [
-      "Built and deployed a full-stack MERN Movie Ticket Booking Platform with seat selection, real-time availability, and an admin dashboard for managing movies and bookings.",
-      "Implemented Clerk authentication with email, social, and phone sign-in, supporting multi-profile sessions and seamless account switching.",
-      "Integrated Inngest for background jobs and scheduling, enabling automated email notifications and temporary seat locking with timeout logic.",
-    ],
-  },
-];
+const heading: React.CSSProperties = {
+  marginTop: 16,
+  fontSize: "clamp(36px,5vw,66px)",
+  lineHeight: 0.97,
+  letterSpacing: "-0.03em",
+  fontWeight: 600,
+};
 
-export default function Home() {
-  const refScrollContainer = useRef(null);
-  const [isScrolled, setIsScrolled] = useState<boolean>(false);
-  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
-  const [current, setCurrent] = useState<number>(0);
-  const [count, setCount] = useState<number>(0);
+/* ── Small helpers ────────────────────────────────────────────────── */
+function Reveal({
+  children,
+  className,
+  style,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      className={className}
+      style={style}
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
-  // handle scroll
+function useCountUp(target: number, run: boolean) {
+  const [val, setVal] = useState(0);
   useEffect(() => {
-    const sections = document.querySelectorAll("section");
-    const navLinks = document.querySelectorAll(".nav-link");
-
-    let locomotive: { destroy: () => void } | null = null;
-    async function getLocomotive() {
-      if (!refScrollContainer.current) return;
-      const Locomotive = (await import("locomotive-scroll")).default;
-      locomotive = new Locomotive({
-        el: refScrollContainer.current,
-        smooth: true,
-      });
-    }
-
-    function handleScroll() {
-      let current = "";
-      setIsScrolled(window.scrollY > 0);
-
-      sections.forEach((section) => {
-        const sectionTop = section.offsetTop;
-        if (window.scrollY >= sectionTop - 250) {
-          current = section.getAttribute("id") ?? "";
-        }
-      });
-
-      navLinks.forEach((li) => {
-        li.classList.remove("nav-active");
-        if (li.getAttribute("href") === `#${current}`) {
-          li.classList.add("nav-active");
-        }
-      });
-    }
-
-    void getLocomotive();
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      locomotive?.destroy();
+    if (!run) return;
+    let raf = 0;
+    const dur = 1300;
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - t0) / dur);
+      const e = 1 - Math.pow(1 - p, 3);
+      setVal(Math.round(target * e));
+      if (p < 1) raf = requestAnimationFrame(tick);
     };
-  }, []);
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [run, target]);
+  return val;
+}
+
+/* ── Header ───────────────────────────────────────────────────────── */
+function Header() {
+  return (
+    <header
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        background: "var(--header-bg)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        borderBottom: `1px solid ${LINE}`,
+      }}
+    >
+      <div
+        style={{
+          ...wrap,
+          height: 66,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 24,
+        }}
+      >
+        <a
+          href="#top"
+          style={{
+            fontFamily: MONO,
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: INK,
+            textDecoration: "none",
+          }}
+        >
+          {NAME}
+        </a>
+        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+          <nav className="ed-nav" style={{ display: "flex", gap: 30 }}>
+            {navLinks.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="ed-navlink"
+                style={{
+                  fontFamily: MONO,
+                  fontSize: 12,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  textDecoration: "none",
+                }}
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
+          <ThemeSwitcher />
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────── */
+function Hero() {
+  return (
+    <section id="top" style={{ padding: "138px 0 60px" }}>
+      <div style={wrap}>
+        <div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 13,
+              marginBottom: 30,
+            }}
+          >
+            <span style={{ width: 36, height: 1, background: ACCENT }} />
+            <span
+              style={{
+                fontFamily: MONO,
+                fontSize: 12,
+                letterSpacing: "0.16em",
+                textTransform: "uppercase",
+                color: MUTED,
+              }}
+            >
+              {TAGLINE}
+            </span>
+          </div>
+          <h1
+            style={{
+              fontSize: "clamp(58px,9.2vw,144px)",
+              lineHeight: 0.9,
+              letterSpacing: "-0.038em",
+              fontWeight: 600,
+            }}
+          >
+            Utkarsh
+            <br />
+            Pawade<span style={{ color: ACCENT }}>.</span>
+          </h1>
+          <p
+            style={{
+              marginTop: 32,
+              maxWidth: 560,
+              fontSize: 19,
+              lineHeight: 1.55,
+              color: INK_SOFT,
+            }}
+          >
+            A pre-final-year CSE student at IIIT Sonepat, building scalable
+            full-stack applications with{" "}
+            <span style={{ color: INK, fontWeight: 600 }}>
+              TypeScript, React, Next.js and the MERN stack
+            </span>{" "}
+            — with a strong pull toward AI and research.
+          </p>
+          <div
+            style={{
+              marginTop: 38,
+              display: "flex",
+              gap: 14,
+              flexWrap: "wrap",
+            }}
+          >
+            <a href="#work" className="ed-btn ed-btn-solid">
+              View selected work
+            </a>
+            <a href="#contact" className="ed-btn ed-btn-ghost">
+              Get in touch
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Stats band (animated counters) ───────────────────────────────── */
+function StatsBand() {
+  const ref = useRef<HTMLElement | null>(null);
+  const [run, setRun] = useState(false);
 
   useEffect(() => {
-    if (!carouselApi) return;
-
-    setCount(carouselApi.scrollSnapList().length);
-    setCurrent(carouselApi.selectedScrollSnap() + 1);
-
-    carouselApi.on("select", () => {
-      setCurrent(carouselApi.selectedScrollSnap() + 1);
-    });
-  }, [carouselApi]);
-
-  // card hover effect
-  useEffect(() => {
-    const tilt = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-tilt-card]"),
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setRun(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setRun(true);
+            io.disconnect();
+          }
+        });
+      },
+      { threshold: 0.4 },
     );
-    VanillaTilt.init(tilt, {
-      speed: 300,
-      glare: true,
-      "max-glare": 0.1,
-      gyroscope: true,
-      perspective: 900,
-      scale: 0.9,
-    });
-    return () => {
-      tilt.forEach((el) =>
-        (
-          el as unknown as { vanillaTilt?: { destroy: () => void } }
-        ).vanillaTilt?.destroy(),
-      );
-    };
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
+
+  const dsa = useCountUp(700, run);
+  const proj = useCountUp(5, run);
+  const intern = useCountUp(3, run);
+  const rating = useCountUp(1868, run);
+
+  const items = [
+    { v: `${dsa}+`, l: "DSA problems solved" },
+    { v: `${proj}+`, l: "Projects shipped" },
+    { v: `${intern}`, l: "Internships & research" },
+    { v: `${rating}`, l: "Peak LeetCode · top 5.5%" },
+  ];
 
   return (
-    <Container>
-      <div ref={refScrollContainer}>
-        <Gradient />
-
-        {/* Intro & About */}
-        <section
-          id="home"
-          data-scroll-section
-          className="flex min-h-screen w-full flex-col items-center justify-center"
-        >
-          <div className={styles.intro}>
-            <div>
-              <h1
-                data-scroll
-                data-scroll-enable-touch-speed
-                data-scroll-speed=".06"
-                data-scroll-direction="horizontal"
-              >
-                <span className="text-6xl tracking-tighter text-foreground 2xl:text-8xl">
-                  Hello, I&apos;m
-                  <br />
-                </span>
-                <span className="clash-grotesk text-gradient text-6xl 2xl:text-8xl">
-                  Utkarsh.
-                </span>
-              </h1>
-
-              <p
-                data-scroll
-                data-scroll-enable-touch-speed
-                data-scroll-speed=".06"
-                className="mt-4 max-w-3xl text-xl font-light leading-normal tracking-tight text-muted-foreground xl:text-2xl"
-              >
-                I&apos;m a pre-final year CSE student at{" "}
-                <Link
-                  href="https://iiitsonepat.ac.in/"
-                  target="_blank"
-                  className="underline"
-                >
-                  IIIT Sonepat
-                </Link>{" "}
-                with experience in{" "}
-                <span className="text-gradient">
-                  TypeScript, React, Next.js, and the MERN stack
-                </span>
-                . I enjoy building scalable full-stack applications and have a
-                strong interest in research, backed by solid problem-solving
-                skills.
-              </p>
-            </div>
-
-            <div className="mt-12 grid grid-cols-2 gap-8 xl:grid-cols-3">
-              {aboutStats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="flex flex-col items-center text-center xl:items-start xl:text-start"
-                >
-                  <span className="clash-grotesk text-gradient text-4xl font-semibold tracking-tight xl:text-6xl">
-                    {stat.value}
-                  </span>
-                  <span className="tracking-tight text-muted-foreground xl:text-lg">
-                    {stat.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-
+    <section ref={ref} style={{ background: INV_BG, color: INV_TEXT }}>
+      <div
+        style={{
+          ...wrap,
+          padding: "54px clamp(20px,5vw,40px)",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))",
+          gap: 36,
+        }}
+      >
+        {items.map((it) => (
+          <div key={it.l}>
             <div
-              className={cn(
-                styles.scroll,
-                isScrolled && styles["scroll--hidden"],
-              )}
+              style={{
+                fontSize: "clamp(42px,5vw,76px)",
+                fontWeight: 600,
+                letterSpacing: "-0.035em",
+                lineHeight: 1,
+                color: ACCENT,
+              }}
             >
-              Scroll to discover{" "}
-              <TriangleDownIcon className="mt-1 animate-bounce" />
+              {it.v}
+            </div>
+            <div
+              style={{
+                marginTop: 10,
+                fontFamily: MONO,
+                fontSize: 12,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: INV_MUTED,
+              }}
+            >
+              {it.l}
             </div>
           </div>
-        </section>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-        {/* Projects */}
-        <section id="projects" data-scroll-section className="mt-32">
-          {/* Gradient */}
-          <div className="relative isolate -z-10">
-            <div
-              className="absolute inset-x-0 -top-40 transform-gpu overflow-hidden blur-[100px] sm:-top-80 lg:-top-60"
-              aria-hidden="true"
+/* ── Marquee ──────────────────────────────────────────────────────── */
+function Marquee() {
+  return (
+    <div
+      style={{
+        borderBottom: `1px solid ${LINE}`,
+        overflow: "hidden",
+        padding: "18px 0",
+      }}
+    >
+      <div className="ed-marquee-track">
+        {marquee.concat(marquee).map((item, i) => (
+          <span
+            key={i}
+            style={{ display: "inline-flex", alignItems: "center" }}
+          >
+            <span
+              style={{
+                fontSize: 23,
+                fontWeight: 500,
+                padding: "0 28px",
+                color: INK,
+              }}
             >
-              <div
-                className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-primary via-primary to-secondary opacity-10 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
-                style={{
-                  clipPath:
-                    "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
-                }}
-              />
-            </div>
-          </div>
-          <div data-scroll data-scroll-speed=".4" className="my-16">
-            <span className="text-gradient clash-grotesk text-sm font-semibold tracking-tighter">
-              ✨ Projects
+              {item}
             </span>
-            <h2 className="mt-3 text-4xl font-semibold tracking-tight tracking-tighter xl:text-6xl">
-              Streamlined digital experiences.
-            </h2>
-            <p className="mt-1.5 text-base tracking-tight text-muted-foreground xl:text-lg">
-              I&apos;ve worked on a variety of projects, from small websites to
-              large-scale web applications. Here are some of my favorites:
-            </p>
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background: ACCENT,
+              }}
+            />
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-            {/* Carousel */}
-            <div className="mt-14">
-              <Carousel
-                setApi={setCarouselApi}
-                className="w-full"
-                opts={{
-                  loop: true,
-                  align: "center",
+/* ── Selected work (carousel) ─────────────────────────────────────── */
+function Work() {
+  const [current, setCurrent] = useState(0);
+  const total = projects.length;
+  const go = (i: number) => setCurrent(((i % total) + total) % total);
+
+  return (
+    <section id="work" style={{ padding: "96px 0" }}>
+      <div style={wrap}>
+        <Reveal className="ed-head-split" style={{ marginBottom: 46 }}>
+          <div>
+            <span style={eyebrow}>01 — Selected Work</span>
+            <h2 style={heading}>
+              Things I&apos;ve
+              <br />
+              built.
+            </h2>
+          </div>
+          <p
+            style={{
+              maxWidth: 330,
+              color: MUTED,
+              fontSize: 15,
+              lineHeight: 1.55,
+            }}
+          >
+            AI tooling, native desktop apps, and scalable platforms — selected
+            full-stack and systems work.
+          </p>
+        </Reveal>
+
+        {/* counter + arrows */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 22,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: MONO,
+              fontSize: 14,
+              letterSpacing: "0.1em",
+              color: INK,
+            }}
+          >
+            {String(current + 1).padStart(2, "0")}{" "}
+            <span style={{ color: MUTED }}>
+              / {String(total).padStart(2, "0")}
+            </span>
+          </span>
+          <div style={{ display: "flex", gap: 12 }}>
+            <button
+              aria-label="Previous project"
+              className="ed-arrow"
+              onClick={() => go(current - 1)}
+            >
+              ←
+            </button>
+            <button
+              aria-label="Next project"
+              className="ed-arrow"
+              onClick={() => go(current + 1)}
+            >
+              →
+            </button>
+          </div>
+        </div>
+
+        {/* track */}
+        <div
+          style={{
+            overflow: "hidden",
+            borderTop: `1px solid ${LINE}`,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              transition: "transform 0.6s cubic-bezier(0.22,1,0.36,1)",
+              transform: `translateX(-${current * 100}%)`,
+            }}
+          >
+            {projects.map((p) => (
+              <div key={p.num} style={{ minWidth: "100%", padding: "42px 0" }}>
+                <div className="ed-slide">
+                  <div
+                    style={{
+                      position: "relative",
+                      aspectRatio: "4 / 3",
+                      border: `1px solid ${LINE_STRONG}`,
+                      background: SURFACE,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Image
+                      src={p.img}
+                      alt={p.title}
+                      fill
+                      quality={85}
+                      sizes="(max-width: 860px) 100vw, 45vw"
+                      style={{ objectFit: "cover" }}
+                    />
+                    <span
+                      style={{
+                        position: "absolute",
+                        right: 18,
+                        bottom: -14,
+                        fontSize: "clamp(96px,13vw,196px)",
+                        fontWeight: 600,
+                        lineHeight: 1,
+                        letterSpacing: "-0.04em",
+                        color: "rgba(255,255,255,0.16)",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      {p.num}
+                    </span>
+                  </div>
+                  <div>
+                    <h3
+                      style={{
+                        fontSize: "clamp(27px,3vw,42px)",
+                        letterSpacing: "-0.022em",
+                        fontWeight: 600,
+                        lineHeight: 1.04,
+                      }}
+                    >
+                      {p.title}
+                    </h3>
+                    <p
+                      style={{
+                        marginTop: 18,
+                        fontSize: 16,
+                        lineHeight: 1.6,
+                        color: INK_SOFT,
+                        maxWidth: 550,
+                      }}
+                    >
+                      {p.desc}
+                    </p>
+                    <div
+                      style={{
+                        marginTop: 22,
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 8,
+                      }}
+                    >
+                      {p.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          style={{
+                            fontFamily: MONO,
+                            fontSize: 11,
+                            letterSpacing: "0.04em",
+                            padding: "6px 11px",
+                            border: `1px solid ${LINE_STRONG}`,
+                            color: INK_SOFT,
+                          }}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <div style={{ marginTop: 28, display: "flex", gap: 22 }}>
+                      <a
+                        href={p.code}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="ed-link"
+                      >
+                        Code →
+                      </a>
+                      {p.demo && (
+                        <a
+                          href={p.demo}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="ed-link ed-link-muted"
+                        >
+                          {p.demoLabel} →
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* index buttons */}
+        <div
+          style={{
+            marginTop: 8,
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))",
+          }}
+        >
+          {projects.map((p, i) => {
+            const active = i === current;
+            return (
+              <button
+                key={p.num}
+                className="ed-proj-nav"
+                onClick={() => go(i)}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 9,
+                  textAlign: "left",
+                  padding: "18px 16px 18px 0",
+                  background: "none",
+                  cursor: "pointer",
+                  border: "none",
+                  borderTop: `2px solid ${active ? ACCENT : LINE}`,
+                  color: active ? INK : MUTED,
+                  transition: "color 0.2s,border-color 0.2s",
                 }}
               >
-                <CarouselContent className="-ml-2 md:-ml-4">
-                  {projects.map((project) => (
-                    <CarouselItem
-                      key={project.title}
-                      className="pl-2 transition-all duration-300 md:basis-[85%] md:pl-4 lg:basis-[70%] xl:basis-[60%]"
-                    >
-                      <div className="space-y-4 p-1">
-                        <Card
-                          data-tilt-card
-                          className="transition-all duration-300 hover:scale-[1.02]"
-                        >
-                          <CardHeader className="p-0">
-                            <Link href={project.href} target="_blank" passHref>
-                              {project.image.endsWith(".webm") ? (
-                                <video
-                                  src={project.image}
-                                  autoPlay
-                                  loop
-                                  muted
-                                  className="aspect-video h-full w-full rounded-t-md bg-primary object-cover"
-                                />
-                              ) : (
-                                <Image
-                                  src={project.image}
-                                  alt={project.title}
-                                  width={600}
-                                  height={300}
-                                  quality={85}
-                                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 70vw, 60vw"
-                                  className="aspect-video h-full w-full rounded-t-md bg-primary object-cover"
-                                />
-                              )}
-                            </Link>
-                          </CardHeader>
-                          <CardContent className="p-4">
-                            <CardTitle className="text-lg font-semibold tracking-tight">
-                              {project.title}
-                            </CardTitle>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                              {project.description}
-                            </p>
-                            <div className="mt-3 flex flex-wrap gap-1.5">
-                              {project.technologies.map((tech) => (
-                                <span
-                                  key={tech}
-                                  className="rounded-full bg-white/5 px-2.5 py-0.5 text-xs text-muted-foreground"
-                                >
-                                  {tech}
-                                </span>
-                              ))}
-                            </div>
-                            <div className="mt-4 flex gap-4 text-sm">
-                              <Link
-                                href={project.href}
-                                target="_blank"
-                                className="text-primary hover:underline"
-                              >
-                                Code →
-                              </Link>
-                              {project.deployUrl &&
-                                project.deployUrl !== "#" && (
-                                  <Link
-                                    href={project.deployUrl}
-                                    target="_blank"
-                                    className="text-primary hover:underline"
-                                  >
-                                    Live demo →
-                                  </Link>
-                                )}
-                            </div>
-                          </CardContent>
-                        </Card>
+                <span
+                  style={{
+                    fontFamily: MONO,
+                    fontSize: 11,
+                    letterSpacing: "0.08em",
+                  }}
+                >
+                  {p.num}
+                </span>
+                <span
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 600,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {p.short}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
 
-                        {/* Key features (rendered for every slide to avoid layout shift) */}
-                        <div className="rounded-lg bg-white/5 p-4 backdrop-blur">
-                          <h4 className="mb-3 text-sm font-semibold text-foreground">
-                            Key Features:
-                          </h4>
-                          <ul className="space-y-2">
-                            {project.points.map((point, i) => (
-                              <li
-                                key={i}
-                                className="flex items-start gap-2 text-xs text-muted-foreground"
-                              >
-                                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                                <span>{point}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="-left-12 md:-left-16" />
-                <CarouselNext className="-right-12 md:-right-16" />
-              </Carousel>
-              <div className="py-2 text-center text-sm text-muted-foreground">
-                <span className="font-semibold">
-                  {current} / {count}
-                </span>{" "}
-                projects
+/* ── Experience ───────────────────────────────────────────────────── */
+function Experience() {
+  return (
+    <section
+      id="experience"
+      style={{ padding: "96px 0", background: INV_BG, color: INV_TEXT }}
+    >
+      <div style={wrap}>
+        <Reveal style={{ marginBottom: 38 }}>
+          <span style={eyebrow}>02 — Experience</span>
+          <h2 style={heading}>
+            Where I&apos;ve
+            <br />
+            worked.
+          </h2>
+        </Reveal>
+        {experience.map((e) => (
+          <Reveal
+            key={e.company}
+            className="ed-exp"
+            style={{
+              padding: "38px 0",
+              borderTop: `1px solid ${INV_LINE}`,
+            }}
+          >
+            <div>
+              <span
+                style={{
+                  fontFamily: MONO,
+                  fontSize: 12,
+                  letterSpacing: "0.1em",
+                  color: ACCENT,
+                }}
+              >
+                {e.period}
+              </span>
+              <h3
+                style={{
+                  marginTop: 14,
+                  fontSize: "clamp(24px,3vw,34px)",
+                  fontWeight: 600,
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1.06,
+                }}
+              >
+                {e.company}
+              </h3>
+              {e.location && (
+                <span
+                  style={{
+                    display: "block",
+                    marginTop: 8,
+                    fontFamily: MONO,
+                    fontSize: 12,
+                    letterSpacing: "0.06em",
+                    color: INV_MUTED,
+                  }}
+                >
+                  {e.location}
+                </span>
+              )}
+            </div>
+            <div>
+              <div
+                style={{
+                  fontFamily: MONO,
+                  fontSize: 12,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: ACCENT,
+                  marginBottom: 16,
+                }}
+              >
+                {e.role}
+              </div>
+              <div>
+                {e.points.map((pt, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      gap: 15,
+                      padding: "11px 0",
+                      fontSize: 15,
+                      lineHeight: 1.58,
+                      color: INV_SOFT,
+                      borderBottom: `1px solid ${INV_LINE_SOFT}`,
+                    }}
+                  >
+                    <span
+                      style={{
+                        marginTop: 9,
+                        width: 6,
+                        height: 6,
+                        flex: "0 0 auto",
+                        background: ACCENT,
+                      }}
+                    />
+                    <span>{pt}</span>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-        </section>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-        {/* Education */}
-        <Section
-          id="education"
-          eyebrow="🎓 Education"
-          title="Academic Background"
-        >
-          <div className="space-y-6">
-            {education.map((edu, index) => (
-              <RevealCard key={index} index={index}>
-                <h3 className="text-xl font-semibold text-foreground">
-                  {edu.institution}
-                </h3>
-                <p className="mt-1 text-lg text-primary">{edu.degree}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {edu.period}
-                </p>
-              </RevealCard>
-            ))}
+/* ── Education ────────────────────────────────────────────────────── */
+function Education() {
+  return (
+    <section id="education" style={{ padding: "96px 0" }}>
+      <div style={wrap}>
+        <Reveal className="ed-head-split" style={{ marginBottom: 46 }}>
+          <div>
+            <span style={eyebrow}>03 — Education</span>
+            <h2 style={heading}>
+              Where I
+              <br />
+              studied.
+            </h2>
           </div>
-        </Section>
-
-        {/* Experience */}
-        <Section
-          id="experience"
-          eyebrow="💼 Experience"
-          title="Professional Journey"
-        >
-          <div className="space-y-6">
-            {experience.map((exp, index) => (
-              <RevealCard key={index} index={index}>
-                <h3 className="text-xl font-semibold text-foreground">
-                  {exp.title}
-                </h3>
-                <p className="mt-1 text-lg text-primary">{exp.company}</p>
-                <p className="text-sm text-muted-foreground">
-                  {exp.location
-                    ? `${exp.location} · ${exp.period}`
-                    : exp.period}
-                </p>
-                <ul className="mt-4 list-disc space-y-2 pl-5">
-                  {exp.points.map((point, i) => (
-                    <li key={i} className="text-sm text-muted-foreground">
-                      {point}
-                    </li>
-                  ))}
-                </ul>
-              </RevealCard>
-            ))}
-          </div>
-        </Section>
-
-        {/* Achievements */}
-        <Section
-          id="achievements"
-          eyebrow="🏆 Achievements"
-          title="Awards & Recognition"
-        >
-          <div className="grid gap-4 md:grid-cols-2">
-            {achievements.map((achievement, index) => (
-              <RevealCard
-                key={index}
-                index={index}
-                className="transition duration-300 hover:bg-white/10"
+          <p
+            style={{
+              maxWidth: 330,
+              color: MUTED,
+              fontSize: 15,
+              lineHeight: 1.55,
+            }}
+          >
+            Pursuing a Bachelor of Technology in Computer Science &amp;
+            Engineering, with a research-driven focus.
+          </p>
+        </Reveal>
+        {education.map((ed) => (
+          <Reveal
+            key={ed.institution}
+            className="ed-edu"
+            style={{
+              padding: "40px 0",
+              borderTop: `1px solid ${LINE}`,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: MONO,
+                fontSize: 13,
+                letterSpacing: "0.08em",
+                color: ACCENT,
+              }}
+            >
+              {ed.period}
+            </span>
+            <div>
+              <h3
+                style={{
+                  fontSize: "clamp(26px,3.2vw,44px)",
+                  fontWeight: 600,
+                  letterSpacing: "-0.024em",
+                  lineHeight: 1.04,
+                }}
               >
-                <p className="text-sm text-muted-foreground">{achievement}</p>
-              </RevealCard>
-            ))}
-          </div>
-        </Section>
+                {ed.institution}
+              </h3>
+              <p style={{ marginTop: 14, fontSize: 18, color: INK_SOFT }}>
+                {ed.degree}
+              </p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-        {/* Certifications */}
-        <Section
-          id="certifications"
-          eyebrow="📜 Certifications"
-          title="Courses & Certifications"
+/* ── Skills ───────────────────────────────────────────────────────── */
+function Skills() {
+  return (
+    <section
+      id="skills"
+      style={{ padding: "96px 0", background: INV_BG, color: INV_TEXT }}
+    >
+      <div style={wrap}>
+        <Reveal className="ed-head-split" style={{ marginBottom: 44 }}>
+          <div>
+            <span style={eyebrow}>04 — Capabilities</span>
+            <h2 style={heading}>
+              Tools &amp;
+              <br />
+              technologies.
+            </h2>
+          </div>
+          <p
+            style={{
+              maxWidth: 330,
+              color: INV_MUTED,
+              fontSize: 15,
+              lineHeight: 1.55,
+            }}
+          >
+            From frontend frameworks to native systems work, data tooling, and
+            infrastructure.
+          </p>
+        </Reveal>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))",
+            gap: 1,
+            background: INV_LINE,
+            border: `1px solid ${INV_LINE}`,
+          }}
         >
-          <div className="grid gap-4 md:grid-cols-2">
-            {certifications.map((cert, index) => (
-              <RevealCard
-                key={index}
-                index={index}
-                className="flex flex-col transition duration-300 hover:bg-white/10"
+          {skillGroups.map((g) => (
+            <div
+              key={g.label}
+              style={{ background: INV_BG, padding: "26px 24px", minHeight: 210 }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  justifyContent: "space-between",
+                  marginBottom: 20,
+                }}
               >
-                <h3 className="text-xl font-semibold text-foreground">
-                  {cert.title}
-                </h3>
-                <p className="mt-1 text-sm text-primary">{cert.provider}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {cert.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="rounded-full bg-white/5 px-3 py-1 text-xs text-muted-foreground"
+                <span
+                  style={{
+                    fontFamily: MONO,
+                    fontSize: 12,
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    color: ACCENT,
+                  }}
+                >
+                  {g.label}
+                </span>
+                <span
+                  style={{ fontFamily: MONO, fontSize: 12, color: INV_MUTED }}
+                >
+                  {String(g.items.length).padStart(2, "0")}
+                </span>
+              </div>
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: 11 }}
+              >
+                {g.items.map((it) => (
+                  <span
+                    key={it}
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 500,
+                      letterSpacing: "-0.01em",
+                      color: INV_TEXT,
+                    }}
+                  >
+                    {it}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Problem solving / DSA ────────────────────────────────────────── */
+function Dsa() {
+  return (
+    <section id="dsa" style={{ padding: "96px 0" }}>
+      <div style={wrap}>
+        <Reveal className="ed-head-split" style={{ marginBottom: 46 }}>
+          <div>
+            <span style={eyebrow}>05 — Problem Solving</span>
+            <h2 style={heading}>
+              Problem Solving & DSA
+              <br />
+              Profile
+            </h2>
+          </div>
+          <p
+            style={{
+              maxWidth: 330,
+              color: MUTED,
+              fontSize: 15,
+              lineHeight: 1.55,
+            }}
+          >
+            Consistent algorithmic practice across the major
+            competitive-programming platforms.
+          </p>
+        </Reveal>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))",
+            gap: 1,
+            background: LINE,
+            border: `1px solid ${LINE}`,
+          }}
+        >
+          {dsaStats.map((s) => (
+            <div
+              key={s.label}
+              style={{ background: PAPER, padding: "34px 26px" }}
+            >
+              <div
+                style={{
+                  fontSize: "clamp(40px,4.6vw,68px)",
+                  fontWeight: 600,
+                  letterSpacing: "-0.035em",
+                  lineHeight: 1,
+                  color: ACCENT,
+                }}
+              >
+                {s.value}
+              </div>
+              <div
+                style={{
+                  marginTop: 12,
+                  fontFamily: MONO,
+                  fontSize: 12,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: MUTED,
+                }}
+              >
+                {s.label}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div
+          style={{
+            marginTop: 32,
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 14,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: MONO,
+              fontSize: 12,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: MUTED,
+              marginRight: 8,
+            }}
+          >
+            Platforms —
+          </span>
+          {dsaPlatforms.map((pf) => (
+            <a
+              key={pf.name}
+              href={pf.url}
+              target="_blank"
+              rel="noreferrer"
+              className="ed-chip"
+              style={{
+                fontFamily: MONO,
+                fontSize: 12,
+                letterSpacing: "0.04em",
+                padding: "8px 14px",
+                border: `1px solid ${LINE_STRONG}`,
+                color: INK_SOFT,
+                textDecoration: "none",
+              }}
+            >
+              {pf.name}
+            </a>
+          ))}
+          <a
+            href="https://leetcode.com/u/utkarshpawade"
+            target="_blank"
+            rel="noreferrer"
+            className="ed-link"
+            style={{ marginLeft: "auto" }}
+          >
+            View LeetCode →
+          </a>
+        </div>
+
+        {/* live data: Codolio card + LeetCode stats */}
+        <div className="ed-dsa-live" style={{ marginTop: 36 }}>
+          <div style={{ width: "100%" }}>
+            <iframe
+              src="https://codolio.com/profile/utkarshpawade/card"
+              width="100%"
+              height="700"
+              style={{ border: `1px solid ${LINE}` }}
+              loading="lazy"
+              title="Utkarsh Pawade Codolio Card"
+            />
+          </div>
+          <LeetCodeStats />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Awards & certifications ──────────────────────────────────────── */
+function Awards() {
+  return (
+    <section
+      id="awards"
+      style={{ padding: "96px 0", background: INV_BG, color: INV_TEXT }}
+    >
+      <div style={wrap}>
+        <Reveal style={{ marginBottom: 46 }}>
+          <span style={eyebrow}>06 — Recognition</span>
+          <h2 style={heading}>
+            Awards &amp;
+            <br />
+            certifications.
+          </h2>
+        </Reveal>
+        <div className="ed-awards">
+          <div>
+            <div
+              style={{
+                fontFamily: MONO,
+                fontSize: 12,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: ACCENT,
+                marginBottom: 6,
+              }}
+            >
+              Achievements
+            </div>
+            {achievements.map((a, i) => (
+              <Reveal
+                key={a.title}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "48px 1fr",
+                  gap: 18,
+                  padding: "24px 0",
+                  borderTop: `1px solid ${INV_LINE}`,
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: MONO,
+                    fontSize: 12,
+                    letterSpacing: "0.08em",
+                    color: INV_MUTED,
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "baseline",
+                      gap: 12,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <h3
+                      style={{
+                        fontSize: 21,
+                        fontWeight: 600,
+                        letterSpacing: "-0.015em",
+                      }}
                     >
-                      {skill}
+                      {a.title}
+                    </h3>
+                    {a.year && (
+                      <span
+                        style={{
+                          fontFamily: MONO,
+                          fontSize: 12,
+                          color: ACCENT,
+                        }}
+                      >
+                        {a.year}
+                      </span>
+                    )}
+                  </div>
+                  <p
+                    style={{
+                      marginTop: 8,
+                      fontSize: 15,
+                      lineHeight: 1.58,
+                      color: INV_SOFT,
+                    }}
+                  >
+                    {a.detail}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <div>
+            <div
+              style={{
+                fontFamily: MONO,
+                fontSize: 12,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: ACCENT,
+                marginBottom: 6,
+              }}
+            >
+              Certifications
+            </div>
+            {certifications.map((c) => (
+              <Reveal
+                key={c.title}
+                style={{
+                  padding: "24px 0",
+                  borderTop: `1px solid ${INV_LINE}`,
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 600,
+                    letterSpacing: "-0.015em",
+                    lineHeight: 1.18,
+                  }}
+                >
+                  {c.title}
+                </h3>
+                <span
+                  style={{
+                    display: "block",
+                    marginTop: 8,
+                    fontFamily: MONO,
+                    fontSize: 12,
+                    letterSpacing: "0.06em",
+                    color: INV_MUTED,
+                  }}
+                >
+                  {c.provider}
+                </span>
+                <div
+                  style={{
+                    marginTop: 14,
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 8,
+                  }}
+                >
+                  {c.skills.map((sk) => (
+                    <span
+                      key={sk}
+                      style={{
+                        fontFamily: MONO,
+                        fontSize: 11,
+                        letterSpacing: "0.04em",
+                        padding: "6px 11px",
+                        border: `1px solid ${INV_LINE_STRONG}`,
+                        color: INV_SOFT,
+                      }}
+                    >
+                      {sk}
                     </span>
                   ))}
                 </div>
-              </RevealCard>
+              </Reveal>
             ))}
           </div>
-        </Section>
-
-        {/* Skills */}
-        <Section id="skills" eyebrow="🛠️ Skills" title="Technical Expertise">
-          <div className="flex flex-col gap-8 xl:flex-row xl:items-start">
-            {/* Skills List */}
-            <div className="space-y-8 xl:w-1/2">
-              {Object.entries(skills).map(([category, skillList]) => (
-                <div key={category}>
-                  <h3 className="mb-4 text-lg font-semibold capitalize text-foreground">
-                    {category.replace(/([A-Z])/g, " $1").trim()}
-                  </h3>
-                  <div className="flex flex-wrap gap-3">
-                    {skillList.map((skill) => (
-                      <motion.div
-                        key={skill.name}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3 }}
-                        viewport={{ once: true }}
-                        className="flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 backdrop-blur transition duration-300 hover:bg-white/10"
-                      >
-                        <Image
-                          src={skill.icon}
-                          alt={skill.name}
-                          width={24}
-                          height={24}
-                          className="h-6 w-6"
-                        />
-                        <span className="text-sm text-foreground">
-                          {skill.name}
-                        </span>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-            {/* Spline Animation */}
-            <div
-              data-scroll
-              data-scroll-speed="-.01"
-              id={styles["canvas-container"]}
-              className="mt-14 h-[400px] w-full xl:mt-0 xl:h-[600px] xl:w-1/2"
-            >
-              <Spline scene="/assets/scene.splinecode" />
-            </div>
-          </div>
-        </Section>
-
-        {/* DSA */}
-        <Section
-          id="leetcode"
-          eyebrow="💻 DSA"
-          title="DSA Solving Profile"
-          description="Check out my problem-solving statistics."
-        >
-          <div className="flex flex-col items-start gap-8 xl:flex-row xl:items-stretch">
-            {/* Codolio Card */}
-            <div className="w-full xl:w-[420px]">
-              <iframe
-                src="https://codolio.com/profile/utkarshpawade/card"
-                width="100%"
-                height="700"
-                style={{ border: "none" }}
-                loading="lazy"
-                title="Utkarsh Pawade Codolio Card"
-                className="rounded-lg"
-              />
-            </div>
-
-            {/* LeetCode Statistics */}
-            <LeetCodeStats />
-          </div>
-        </Section>
-
-        {/* Contact */}
-        <section id="contact" data-scroll-section className="my-16">
-          <div
-            data-scroll
-            data-scroll-speed=".4"
-            data-scroll-position="top"
-            className="flex flex-col items-center justify-center rounded-lg bg-gradient-to-br from-primary/[6.5%] to-white/5 px-8 py-16 text-center xl:py-24"
-          >
-            <h2 className="text-4xl font-medium tracking-tighter xl:text-6xl">
-              Let&apos;s work{" "}
-              <span className="text-gradient clash-grotesk">together.</span>
-            </h2>
-            <p className="mt-1.5 text-base tracking-tight text-muted-foreground xl:text-lg">
-              I&apos;m currently looking for internships and open to discussing
-              new projects.
-            </p>
-
-            {/* Social Links */}
-            <div className="mt-8 flex items-center justify-center gap-6">
-              <Link
-                href="https://www.linkedin.com/in/utkarsh-pawade-4398831b0/"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="LinkedIn"
-                className="rounded-full bg-white/5 p-3 transition duration-300 hover:bg-white/10"
-              >
-                <svg
-                  className="h-6 w-6 text-foreground"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                </svg>
-              </Link>
-              <Link
-                href="https://github.com/utkarshpawade"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="GitHub"
-                className="rounded-full bg-white/5 p-3 transition duration-300 hover:bg-white/10"
-              >
-                <svg
-                  className="h-6 w-6 text-foreground"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                </svg>
-              </Link>
-              <Link
-                href="https://leetcode.com/u/utkarshpawade"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="LeetCode"
-                className="rounded-full bg-white/5 p-3 transition duration-300 hover:bg-white/10"
-              >
-                <svg
-                  className="h-6 w-6 text-foreground"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .066-.523 2.545 2.545 0 0 1 .619-1.164L9.13 8.114c1.058-1.134 3.204-1.27 4.43-.278l3.501 2.831c.593.48 1.461.387 1.94-.207a1.384 1.384 0 0 0-.207-1.943l-3.5-2.831c-.8-.647-1.766-1.045-2.774-1.202l2.015-2.158A1.384 1.384 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z" />
-                </svg>
-              </Link>
-            </div>
-
-            {/* Contact Form */}
-            <ContactForm />
-          </div>
-        </section>
+        </div>
       </div>
-    </Container>
+    </section>
+  );
+}
+
+/* ── Contact ──────────────────────────────────────────────────────── */
+function Contact() {
+  return (
+    <section
+      id="contact"
+      style={{
+        background: PAPER,
+        color: INK,
+        padding: "112px 0 52px",
+        borderTop: `1px solid ${LINE}`,
+      }}
+    >
+      <div style={wrap}>
+        <span style={{ ...eyebrow, letterSpacing: "0.16em" }}>
+          07 — Contact
+        </span>
+        <h2
+          style={{
+            marginTop: 20,
+            fontSize: "clamp(46px,7.4vw,116px)",
+            lineHeight: 0.9,
+            letterSpacing: "-0.038em",
+            fontWeight: 600,
+          }}
+        >
+          Let&apos;s build
+          <br />
+          something<span style={{ color: ACCENT }}>.</span>
+        </h2>
+        <p
+          style={{
+            marginTop: 26,
+            maxWidth: 520,
+            fontSize: 18,
+            lineHeight: 1.55,
+            color: INK_SOFT,
+          }}
+        >
+          Currently looking for internships and open to discussing new projects
+          and research.
+        </p>
+        <a
+          href="mailto:utkarshpawade2@gmail.com"
+          style={{
+            display: "inline-block",
+            marginTop: 34,
+            fontSize: "clamp(22px,3vw,38px)",
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
+            color: INK,
+            textDecoration: "none",
+            borderBottom: `2px solid ${ACCENT}`,
+            paddingBottom: 6,
+          }}
+        >
+          utkarshpawade2@gmail.com →
+        </a>
+
+        <div
+          style={{ marginTop: 40, display: "flex", gap: 26, flexWrap: "wrap" }}
+        >
+          <a
+            href="https://www.linkedin.com/in/utkarsh-pawade-4398831b0/"
+            target="_blank"
+            rel="noreferrer"
+            className="ed-social"
+          >
+            LinkedIn ↗
+          </a>
+          <a
+            href="https://github.com/utkarshpawade"
+            target="_blank"
+            rel="noreferrer"
+            className="ed-social"
+          >
+            GitHub ↗
+          </a>
+        </div>
+
+        <ContactForm />
+
+        <div
+          style={{
+            marginTop: 84,
+            paddingTop: 24,
+            borderTop: `1px solid ${LINE}`,
+            display: "flex",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 12,
+            fontFamily: MONO,
+            fontSize: 12,
+            letterSpacing: "0.06em",
+            color: MUTED,
+          }}
+        >
+          <span>© 2026 {NAME}</span>
+          <span>B.Tech CSE · IIIT Sonepat</span>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -796,14 +1540,12 @@ function ContactForm() {
     try {
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           access_key: "7f92dbbd-1c9e-4ebc-a6a3-eaa4ccd18c08",
           subject: `Portfolio Contact from ${email}`,
-          email: email,
-          message: message,
+          email,
+          message,
           from_name: email,
           to_email: "utkarshpawade2@gmail.com",
         }),
@@ -820,7 +1562,7 @@ function ContactForm() {
         setStatus("error");
         setTimeout(() => setStatus("idle"), 5000);
       }
-    } catch (error) {
+    } catch {
       setStatus("error");
       setTimeout(() => setStatus("idle"), 5000);
     }
@@ -829,17 +1571,47 @@ function ContactForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-8 flex w-full max-w-md flex-col gap-4"
+      style={{
+        marginTop: 48,
+        maxWidth: 520,
+        display: "flex",
+        flexDirection: "column",
+        gap: 14,
+      }}
     >
+      <div
+        style={{
+          fontFamily: MONO,
+          fontSize: 12,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          color: ACCENT,
+        }}
+      >
+        Or send a message
+      </div>
       {status === "success" && (
-        <div className="rounded-lg bg-green-500/20 px-4 py-3 text-center text-sm text-green-400">
-          Message sent successfully! I&apos;ll get back to you soon.
+        <div
+          style={{
+            border: "1px solid #1F8A5B",
+            color: "#1F6F4C",
+            padding: "12px 16px",
+            fontSize: 14,
+          }}
+        >
+          Message sent — I&apos;ll get back to you soon.
         </div>
       )}
       {status === "error" && (
-        <div className="rounded-lg bg-red-500/20 px-4 py-3 text-center text-sm text-red-400">
-          Failed to send message. Please email directly at
-          utkarshpawade2@gmail.com
+        <div
+          style={{
+            border: "1px solid #C0392B",
+            color: "#A02B20",
+            padding: "12px 16px",
+            fontSize: 14,
+          }}
+        >
+          Failed to send. Please email utkarshpawade2@gmail.com directly.
         </div>
       )}
       <input
@@ -849,7 +1621,7 @@ function ContactForm() {
         onChange={(e) => setEmail(e.target.value)}
         required
         disabled={status === "loading"}
-        className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+        className="ed-input"
       />
       <textarea
         placeholder="Your message"
@@ -858,132 +1630,273 @@ function ContactForm() {
         required
         rows={4}
         disabled={status === "loading"}
-        className="resize-none rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+        className="ed-input"
+        style={{ resize: "none" }}
       />
-      <Button type="submit" className="w-full" disabled={status === "loading"}>
-        {status === "loading" ? "Sending..." : "Send Message"}
-      </Button>
+      <button
+        type="submit"
+        disabled={status === "loading"}
+        className="ed-btn ed-btn-solid ed-submit"
+      >
+        {status === "loading" ? "Sending…" : "Send message"}
+      </button>
     </form>
   );
 }
 
-function Gradient() {
+/* ── Page ─────────────────────────────────────────────────────────── */
+export default function Home() {
   return (
     <>
-      <div className="absolute -top-40 right-0 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
-        <svg
-          className="relative left-[calc(50%-11rem)] -z-10 h-[21.1875rem] max-w-none -translate-x-1/2 rotate-[30deg] sm:left-[calc(50%-30rem)] sm:h-[42.375rem]"
-          viewBox="0 0 1155 678"
-        >
-          <path
-            fill="url(#45de2b6b-92d5-4d68-a6a0-9b9b2abad533)"
-            fillOpacity=".1"
-            d="M317.219 518.975L203.852 678 0 438.341l317.219 80.634 204.172-286.402c1.307 132.337 45.083 346.658 209.733 145.248C936.936 126.058 882.053-94.234 1031.02 41.331c119.18 108.451 130.68 295.337 121.53 375.223L855 299l21.173 362.054-558.954-142.079z"
-          />
-          <defs>
-            <linearGradient
-              id="45de2b6b-92d5-4d68-a6a0-9b9b2abad533"
-              x1="1155.49"
-              x2="-78.208"
-              y1=".177"
-              y2="474.645"
-              gradientUnits="userSpaceOnUse"
-            >
-              <stop stopColor="#7980fe" />
-              <stop offset={1} stopColor="#f0fff7" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
+      <Head>
+        <title>Utkarsh Pawade</title>
+        <meta name="robots" content="follow, index" />
+        <meta name="theme-color" content="#EFEAE0" />
+        <meta
+          name="description"
+          content="Pre-Final Year CSE student at IIIT Sonepat | Full-Stack Developer"
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Utkarsh Pawade" />
+        <meta
+          property="og:description"
+          content="Pre-Final Year CSE student at IIIT Sonepat | Full-Stack Developer"
+        />
+        <meta property="og:title" content="Utkarsh Pawade" />
+        <meta
+          property="og:image"
+          content="https://www.Utkarsh.codes/assets/logo.webp"
+        />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Utkarsh Pawade" />
+        <meta
+          name="twitter:description"
+          content="Pre-Final Year CSE student at IIIT Sonepat | Full-Stack Developer"
+        />
+        <meta
+          name="twitter:image"
+          content="https://www.Utkarsh.codes/assets/logo.webp"
+        />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
+      </Head>
 
-      {/* Lower gradient */}
-      <div className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]">
-        <svg
-          className="relative left-[calc(50%+3rem)] h-[21.1875rem] max-w-none -translate-x-1/2 sm:left-[calc(50%+36rem)] sm:h-[42.375rem]"
-          viewBox="0 0 1155 678"
-        >
-          <path
-            fill="url(#ecb5b0c9-546c-4772-8c71-4d3f06d544bc)"
-            fillOpacity=".1"
-            d="M317.219 518.975L203.852 678 0 438.341l317.219 80.634 204.172-286.402c1.307 132.337 45.083 346.658 209.733 145.248C936.936 126.058 882.053-94.234 1031.02 41.331c119.18 108.451 130.68 295.337 121.53 375.223L855 299l21.173 362.054-558.954-142.079z"
-          />
-          <defs>
-            <linearGradient
-              id="ecb5b0c9-546c-4772-8c71-4d3f06d544bc"
-              x1="1155.49"
-              x2="-78.208"
-              y1=".177"
-              y2="474.645"
-              gradientUnits="userSpaceOnUse"
-            >
-              <stop stopColor="#9A70FF" />
-              <stop offset={1} stopColor="#838aff" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
+      <Header />
+      <main style={{ background: PAPER, color: INK, overflowX: "hidden" }}>
+        <Hero />
+        <StatsBand />
+        <Marquee />
+        <Work />
+        <Experience />
+        <Education />
+        <Skills />
+        <Dsa />
+        <Awards />
+        <Contact />
+      </main>
+
+      <style jsx global>{`
+        .ed-head-split {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          gap: 24px;
+          flex-wrap: wrap;
+        }
+        .ed-slide {
+          display: grid;
+          grid-template-columns: 0.92fr 1.08fr;
+          gap: 50px;
+          align-items: center;
+        }
+        .ed-exp {
+          display: grid;
+          grid-template-columns: 0.78fr 1.22fr;
+          gap: 44px;
+        }
+        .ed-edu {
+          display: grid;
+          grid-template-columns: 0.42fr 1.58fr;
+          gap: 44px;
+          align-items: start;
+        }
+        .ed-awards {
+          display: grid;
+          grid-template-columns: 1.35fr 1fr;
+          gap: 56px;
+          align-items: start;
+        }
+        .ed-dsa-live {
+          display: grid;
+          grid-template-columns: 420px 1fr;
+          gap: 36px;
+          align-items: stretch;
+        }
+        @media (max-width: 980px) {
+          .ed-dsa-live {
+            grid-template-columns: 1fr;
+          }
+        }
+        @media (max-width: 860px) {
+          .ed-slide,
+          .ed-exp,
+          .ed-awards {
+            grid-template-columns: 1fr;
+            gap: 28px;
+          }
+        }
+        @media (max-width: 680px) {
+          .ed-edu {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+        }
+        @media (max-width: 720px) {
+          .ed-nav {
+            display: none !important;
+          }
+        }
+
+        .ed-marquee-track {
+          display: flex;
+          width: max-content;
+          animation: marquee 30s linear infinite;
+        }
+
+        .ed-navlink {
+          color: ${MUTED};
+          transition: color 0.2s;
+        }
+        .ed-navlink:hover {
+          color: ${INK};
+        }
+
+        .ed-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 9px;
+          padding: 15px 26px;
+          font-family: ${MONO};
+          font-size: 12px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          text-decoration: none;
+          cursor: pointer;
+          transition:
+            background 0.2s,
+            border-color 0.2s,
+            color 0.2s;
+        }
+        .ed-btn-solid {
+          background: ${INK};
+          color: ${PAPER};
+          border: 1px solid ${INK};
+        }
+        .ed-btn-solid:hover {
+          background: ${ACCENT};
+          border-color: ${ACCENT};
+        }
+        .ed-btn-ghost {
+          background: transparent;
+          color: ${INK};
+          border: 1px solid ${LINE_STRONG};
+        }
+        .ed-btn-ghost:hover {
+          border-color: ${INK};
+        }
+        .ed-submit {
+          width: 100%;
+        }
+        .ed-submit:disabled {
+          opacity: 0.5;
+          cursor: default;
+        }
+
+        .ed-arrow {
+          width: 48px;
+          height: 48px;
+          border: 1px solid ${LINE_STRONG};
+          background: transparent;
+          color: ${INK};
+          font-size: 18px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition:
+            background 0.2s,
+            color 0.2s,
+            border-color 0.2s;
+        }
+        .ed-arrow:hover {
+          background: ${INK};
+          color: ${PAPER};
+          border-color: ${INK};
+        }
+
+        .ed-link {
+          font-family: ${MONO};
+          font-size: 12px;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: ${INK};
+          text-decoration: none;
+          border-bottom: 2px solid ${ACCENT};
+          padding-bottom: 4px;
+        }
+        .ed-link-muted {
+          color: ${MUTED};
+          border-bottom-color: ${LINE_STRONG};
+        }
+
+        .ed-proj-nav:hover {
+          color: ${INK};
+        }
+
+        .ed-chip {
+          transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+        .ed-chip:hover {
+          background: ${INK};
+          color: ${PAPER};
+          border-color: ${INK};
+        }
+
+        .ed-social {
+          font-family: ${MONO};
+          font-size: 12px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: ${MUTED};
+          text-decoration: none;
+          transition: color 0.2s;
+        }
+        .ed-social:hover {
+          color: ${INK};
+        }
+
+        .ed-input {
+          width: 100%;
+          padding: 14px 16px;
+          background: transparent;
+          border: 1px solid ${LINE_STRONG};
+          color: ${INK};
+          font-family: var(--font-space-grotesk), sans-serif;
+          font-size: 15px;
+          outline: none;
+          transition: border-color 0.2s;
+        }
+        .ed-input::placeholder {
+          color: ${MUTED};
+        }
+        .ed-input:focus {
+          border-color: ${ACCENT};
+        }
+        .ed-input:disabled {
+          opacity: 0.5;
+        }
+      `}</style>
     </>
-  );
-}
-
-function Section({
-  id,
-  eyebrow,
-  title,
-  description,
-  className,
-  children,
-}: {
-  id: string;
-  eyebrow: string;
-  title: string;
-  description?: string;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section id={id} data-scroll-section className={className}>
-      <div
-        data-scroll
-        data-scroll-speed=".4"
-        data-scroll-position="top"
-        className="my-8 flex flex-col justify-start space-y-10"
-      >
-        <div>
-          <span className="text-gradient clash-grotesk text-sm font-semibold tracking-tighter">
-            {eyebrow}
-          </span>
-          <h2 className="mt-3 text-4xl font-semibold tracking-tight xl:text-6xl">
-            {title}
-          </h2>
-          {description && (
-            <p className="mt-2 text-muted-foreground">{description}</p>
-          )}
-        </div>
-        {children}
-      </div>
-    </section>
-  );
-}
-
-function RevealCard({
-  index = 0,
-  className,
-  children,
-}: {
-  index?: number;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className={cn("rounded-lg bg-white/5 p-6 backdrop-blur", className)}
-    >
-      {children}
-    </motion.div>
   );
 }
