@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
+const MONO = "var(--font-jetbrains-mono), monospace";
+
+/* Themeable color roles — resolved per active theme in globals.css */
+const INK = "var(--text)";
+const PAPER = "var(--bg)";
+const ACCENT = "var(--accent)";
+const MUTED = "var(--muted)";
+const LINE = "var(--border)";
+
 interface LeetCodeData {
   totalSolved: number;
   easy: number;
@@ -22,6 +31,38 @@ interface LeetCodeData {
     date: string;
     status: string;
   }>;
+}
+
+const eyebrowStyle: React.CSSProperties = {
+  fontFamily: MONO,
+  fontSize: 12,
+  letterSpacing: "0.12em",
+  textTransform: "uppercase",
+  color: MUTED,
+};
+
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true }}
+      style={{
+        flex: 1,
+        width: "100%",
+        background: PAPER,
+        border: `1px solid ${LINE}`,
+        padding: 28,
+        display: "flex",
+        flexDirection: "column",
+        gap: 24,
+        justifyContent: "center",
+      }}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 export default function LeetCodeStats() {
@@ -48,114 +89,164 @@ export default function LeetCodeStats() {
 
   if (loading) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        viewport={{ once: true }}
-        className="flex w-full flex-1 flex-col justify-center rounded-lg bg-white/5 p-6 backdrop-blur"
-      >
-        <div className="flex items-center justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
+      <Shell>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "48px 0",
+          }}
+        >
+          <div
+            style={{
+              height: 32,
+              width: 32,
+              borderRadius: "50%",
+              border: `2px solid ${LINE}`,
+              borderTopColor: ACCENT,
+              animation: "spin 0.8s linear infinite",
+            }}
+          />
+          <style jsx>{`
+            @keyframes spin {
+              to {
+                transform: rotate(360deg);
+              }
+            }
+          `}</style>
         </div>
-      </motion.div>
+      </Shell>
     );
   }
 
   if (error !== null || data === null) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        viewport={{ once: true }}
-        className="flex w-full flex-1 flex-col justify-center rounded-lg bg-white/5 p-6 backdrop-blur"
-      >
-        <div className="text-center text-muted-foreground">
+      <Shell>
+        <div style={{ textAlign: "center", color: MUTED, fontFamily: MONO }}>
           {error ?? "Failed to load data"}
         </div>
-      </motion.div>
+      </Shell>
     );
   }
 
+  const difficulty = [
+    { label: "Total", value: data.totalSolved, color: ACCENT },
+    { label: "Easy", value: data.easy, color: "#1F8A5B" },
+    { label: "Medium", value: data.medium, color: "#C2871E" },
+    { label: "Hard", value: data.hard, color: "#C0392B" },
+  ];
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      viewport={{ once: true }}
-      className="flex w-full flex-1 flex-col justify-center space-y-6 rounded-lg bg-white/5 p-6 backdrop-blur"
-    >
-      {/* Header with Level and Rank */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="clash-grotesk text-gradient text-2xl font-bold">
-            Leetcode Profile
-          </h3>
-        </div>
-        <div className="rounded-lg bg-white/10 px-4 py-2">
-          <p className="text-xs text-muted-foreground">Contest Rating</p>
-          <p className="clash-grotesk text-gradient text-xl font-bold">
-            {data.contestRating ?? "N/A"}
+    <Shell>
+      {/* Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 16,
+        }}
+      >
+        <h3
+          style={{
+            fontSize: 24,
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
+            color: INK,
+          }}
+        >
+          LeetCode profile
+        </h3>
+        <div style={{ border: `1px solid ${LINE}`, padding: "8px 14px" }}>
+          <p style={eyebrowStyle}>Contest rating</p>
+          <p
+            style={{
+              fontSize: 22,
+              fontWeight: 600,
+              letterSpacing: "-0.02em",
+              color: ACCENT,
+              marginTop: 2,
+            }}
+          >
+            {data.contestRating || "N/A"}
           </p>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div className="rounded-lg bg-white/5 p-4 text-center">
-          <span className="clash-grotesk text-gradient text-2xl font-bold">
-            {data.totalSolved}
-          </span>
-          <p className="text-xs text-muted-foreground">Total Solved</p>
-        </div>
-        <div className="rounded-lg bg-white/5 p-4 text-center">
-          <span className="clash-grotesk text-2xl font-bold text-green-500">
-            {data.easy}
-          </span>
-          <p className="text-xs text-muted-foreground">Easy</p>
-        </div>
-        <div className="rounded-lg bg-white/5 p-4 text-center">
-          <span className="clash-grotesk text-2xl font-bold text-yellow-500">
-            {data.medium}
-          </span>
-          <p className="text-xs text-muted-foreground">Medium</p>
-        </div>
-        <div className="rounded-lg bg-white/5 p-4 text-center">
-          <span className="clash-grotesk text-2xl font-bold text-red-500">
-            {data.hard}
-          </span>
-          <p className="text-xs text-muted-foreground">Hard</p>
-        </div>
+      {/* Difficulty grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: 1,
+          background: LINE,
+          border: `1px solid ${LINE}`,
+        }}
+      >
+        {difficulty.map((d) => (
+          <div
+            key={d.label}
+            style={{ background: PAPER, padding: "18px 14px", textAlign: "center" }}
+          >
+            <span
+              style={{
+                fontSize: 26,
+                fontWeight: 600,
+                letterSpacing: "-0.03em",
+                color: d.color,
+              }}
+            >
+              {d.value}
+            </span>
+            <p style={{ ...eyebrowStyle, marginTop: 6 }}>{d.label}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Streak and Ranking */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-lg bg-white/5 p-4 text-center">
-          <span className="clash-grotesk text-gradient text-2xl font-bold">
+      {/* Streak + global rank */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, 1fr)",
+          gap: 1,
+          background: LINE,
+          border: `1px solid ${LINE}`,
+        }}
+      >
+        <div style={{ background: PAPER, padding: "18px 14px", textAlign: "center" }}>
+          <span style={{ fontSize: 26, fontWeight: 600, color: INK }}>
             🔥 {data.streak}
           </span>
-          <p className="text-xs text-muted-foreground">Day Streak</p>
+          <p style={{ ...eyebrowStyle, marginTop: 6 }}>Day streak</p>
         </div>
-        <div className="rounded-lg bg-white/5 p-4 text-center">
-          <span className="clash-grotesk text-gradient text-2xl font-bold">
+        <div style={{ background: PAPER, padding: "18px 14px", textAlign: "center" }}>
+          <span style={{ fontSize: 26, fontWeight: 600, color: INK }}>
             {data.globalRanking > 0
               ? data.globalRanking.toLocaleString()
               : "N/A"}
           </span>
-          <p className="text-xs text-muted-foreground">Global Rank</p>
+          <p style={{ ...eyebrowStyle, marginTop: 6 }}>Global rank</p>
         </div>
       </div>
 
       {/* Badges */}
       {data.badges.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-muted-foreground">Badges</p>
-          <div className="flex flex-wrap gap-2">
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <p style={eyebrowStyle}>Badges</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {data.badges.map((badge, index) => (
               <div
                 key={index}
-                className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  border: `1px solid ${LINE}`,
+                  padding: "6px 11px",
+                  fontSize: 12,
+                  color: INK,
+                }}
               >
                 <span>{badge.icon}</span>
                 <span>{badge.name}</span>
@@ -165,30 +256,40 @@ export default function LeetCodeStats() {
         </div>
       )}
 
-      {/* Recent Submissions */}
+      {/* Recent submissions */}
       {data.recentSubmissions.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-muted-foreground">
-            Recent Submissions
-          </p>
-          <div className="space-y-2">
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <p style={eyebrowStyle}>Recent submissions</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
             {data.recentSubmissions.map((submission, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between rounded-lg bg-white/5 p-3"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  borderTop: `1px solid ${LINE}`,
+                  padding: "11px 0",
+                }}
               >
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{submission.title}</p>
-                  <p className="text-xs text-muted-foreground">
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: INK }}>
+                    {submission.title}
+                  </p>
+                  <p style={{ ...eyebrowStyle, marginTop: 2 }}>
                     {submission.date}
                   </p>
                 </div>
                 <span
-                  className={`text-xs font-semibold ${
-                    submission.status === "Accepted"
-                      ? "text-green-500"
-                      : "text-red-500"
-                  }`}
+                  style={{
+                    fontFamily: MONO,
+                    fontSize: 11,
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    color:
+                      submission.status === "Accepted" ? "#1F8A5B" : "#C0392B",
+                  }}
                 >
                   {submission.status}
                 </span>
@@ -198,16 +299,24 @@ export default function LeetCodeStats() {
         </div>
       )}
 
-      {/* Link to Profile */}
-      <div className="text-center">
-        <Link
-          href="https://leetcode.com/u/utkarshpawade/"
-          target="_blank"
-          className="text-sm text-primary underline hover:text-primary/80"
-        >
-          View Full Profile →
-        </Link>
-      </div>
-    </motion.div>
+      {/* Profile link */}
+      <Link
+        href="https://leetcode.com/u/utkarshpawade/"
+        target="_blank"
+        style={{
+          alignSelf: "flex-start",
+          fontFamily: MONO,
+          fontSize: 12,
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          color: INK,
+          textDecoration: "none",
+          borderBottom: `2px solid ${ACCENT}`,
+          paddingBottom: 4,
+        }}
+      >
+        View full profile →
+      </Link>
+    </Shell>
   );
 }

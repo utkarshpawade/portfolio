@@ -6,35 +6,119 @@
 
 @layer base {
   :root {
-    --background: 240 27.9% 5.7%;
-    --foreground: 210 40% 98%;
+    /* shadcn/ui tokens (kept for ui/* components) */
+    --background: 40 33% 91%; /* paper  #EFEAE0 */
+    --foreground: 40 16% 7%; /* ink    #161410 */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 40 33% 91%;
+    --card-foreground: 40 16% 7%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 40 33% 91%;
+    --popover-foreground: 40 16% 7%;
 
-    --primary: 237 99% 74%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 13 75% 52%; /* vermilion #E0512A */
+    --primary-foreground: 40 33% 95%;
 
-    --secondary: 214.2 98.47% 74.31%;
-    --secondary-foreground: 218 11% 65%;
+    --secondary: 40 16% 7%;
+    --secondary-foreground: 40 33% 91%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 40 22% 85%;
+    --muted-foreground: 40 12% 39%; /* warm gray #6F685A */
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 13 75% 52%;
+    --accent-foreground: 40 33% 95%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 40 33% 95%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 40 22% 82%;
+    --input: 40 22% 82%;
+    --ring: 13 75% 52%;
 
-    --radius: 0.5rem;
+    --radius: 0rem;
+  }
+
+  /* ───────────────────────────────────────────────────────────────
+     Theme system — every theme is a pure color reskin of the locked
+     Light design. Same 13 color roles, only the values change.
+     Source: Claude Design "Theme Explorations".
+     ─────────────────────────────────────────────────────────────── */
+
+  /* LIGHT — editorial paper / ink / vermilion (default, locked) */
+  :root,
+  [data-theme="light"] {
+    color-scheme: light;
+    --bg: #efeae0; /* page background       */
+    --surface: #e4ddcf; /* surface / card        */
+    --text: #161410; /* primary text          */
+    --muted: #6f685a; /* secondary / muted     */
+    --soft: #3a362e; /* body text (soft)      */
+    --border: rgba(22, 20, 16, 0.18); /* borders & dividers    */
+    --border-strong: rgba(22, 20, 16, 0.28);
+    --accent: #e0512a; /* accent / action       */
+    --accent-h: #c23e1b; /* accent hover/active   */
+    --inv-bg: #161410; /* inverted band bg      */
+    --inv-text: #efeae0; /* inverted band text    */
+    --inv-soft: #cfc9bb; /* inverted band body    */
+    --inv-muted: #a39c8c; /* inverted band muted   */
+    --header-bg: rgba(239, 234, 224, 0.74);
+  }
+
+  /* DARK — deep warm neutral, desaturated accent */
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #1a1714;
+    --surface: #24201a;
+    --text: #f0ebe1;
+    --muted: #9d9685;
+    --soft: #ccc6b8;
+    --border: rgba(240, 235, 225, 0.14);
+    --border-strong: rgba(240, 235, 225, 0.24);
+    --accent: #e86b46;
+    --accent-h: #f1885f;
+    --inv-bg: #100e0b;
+    --inv-text: #f0ebe1;
+    --inv-soft: #ccc6b8;
+    --inv-muted: #9d9685;
+    --header-bg: rgba(26, 23, 20, 0.74);
+  }
+
+  /* MIDNIGHT — deep indigo base, cool coral-rose accent */
+  [data-theme="midnight"] {
+    color-scheme: dark;
+    --bg: #0f1424;
+    --surface: #181f35;
+    --text: #e8ecf7;
+    --muted: #8089a6;
+    --soft: #c2c8dc;
+    --border: rgba(232, 236, 247, 0.14);
+    --border-strong: rgba(232, 236, 247, 0.24);
+    --accent: #ee6352;
+    --accent-h: #f47e6d;
+    --inv-bg: #0a0e1b;
+    --inv-text: #e8ecf7;
+    --inv-soft: #c2c8dc;
+    --inv-muted: #8089a6;
+    --header-bg: rgba(15, 20, 36, 0.74);
+  }
+
+  /* SEPIA / WARM — cream paper, warm dark-brown text */
+  [data-theme="sepia"] {
+    color-scheme: light;
+    --bg: #f2e8d5;
+    --surface: #eadcc2;
+    --text: #2e2417;
+    --muted: #71654a;
+    --soft: #4a3d29;
+    --border: rgba(46, 36, 23, 0.18);
+    --border-strong: rgba(46, 36, 23, 0.28);
+    --accent: #a8431a;
+    --accent-h: #8f3713;
+    --inv-bg: #2e2417;
+    --inv-text: #f2e8d5;
+    --inv-soft: #d9cdb5;
+    --inv-muted: #b0a081;
+    --header-bg: rgba(242, 232, 213, 0.74);
   }
 }
 
@@ -53,12 +137,22 @@
   }
   html {
     @apply antialiased;
+    scroll-behavior: smooth;
+    background: var(--bg);
   }
   body {
-    @apply cursor-wait bg-background text-foreground;
+    background: var(--bg);
+    color: var(--text);
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+  ::selection {
+    background: var(--text);
+    color: var(--bg);
   }
   section {
-    scroll-margin-top: 60px;
+    scroll-margin-top: 72px;
   }
 }
 
@@ -68,13 +162,23 @@
     @apply h-2.5 w-2 transition;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-background;
+    background: var(--bg);
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-muted;
+    background: color-mix(in srgb, var(--text) 28%, transparent);
   }
   ::-webkit-scrollbar-thumb:active {
-    @apply bg-primary;
+    background: var(--accent);
+  }
+}
+
+/* editorial animations */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
 
