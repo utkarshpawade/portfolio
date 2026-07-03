@@ -55,7 +55,7 @@ const projects: Project[] = [
   {
     num: "01",
     short: "AI Cloud IDE",
-    img: "/assets/ide.webp",
+    img: "/assets/Screenshot 2026-07-03 155628.webp",
     title: "AI-Powered Cloud IDE",
     desc: "Browser-based AI coding platform where an autonomous agent scaffolds, edits, and runs full projects from plain-English prompts — inspired by Cursor, Bolt, and Lovable.",
     tags: [
